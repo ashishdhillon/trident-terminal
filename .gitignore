@@ -1,0 +1,18 @@
+# Rust build output
+target/
+**/*.rs.bk
+Cargo.lock
+
+# Node dependencies and build
+node_modules/
+dist/
+.vite/
+
+# Vercel deployment cache
+.vercel/
+
+# OS and environment
+.DS_Store
+.env
+.env.local
+*.log

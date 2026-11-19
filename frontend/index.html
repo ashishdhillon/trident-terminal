@@ -92,6 +92,15 @@
             <span id="feed-status-label" style="color: var(--ink-2);">FEED HEALTH</span>
           </button>
 
+          <button id="audio-sitrep-btn" type="button" title="Play Spoken Strategic Audio Brief [P]" class="glass-chip px-2.5 py-1 flex items-center gap-2 text-[11px] font-mono font-semibold hover:border-purple-400" style="color: var(--ink-2);">
+            <span id="audio-wave-icon" class="flex items-center gap-0.5">
+              <span class="w-0.5 h-3 bg-purple-500 rounded-full"></span>
+              <span class="w-0.5 h-4 bg-purple-400 rounded-full"></span>
+              <span class="w-0.5 h-2 bg-purple-500 rounded-full"></span>
+            </span>
+            <span id="audio-sitrep-lbl">AUDIO SITREP [P]</span>
+          </button>
+
           <button id="refresh-btn" type="button" title="Refresh Telemetry [R]" class="glass-chip px-2 py-1 font-mono text-xs hover:border-indigo-400" style="color: var(--accent);">↻</button>
 
           <div class="hidden sm:flex items-center gap-2 font-mono text-[11px] tabular px-2.5 py-1 glass-chip">
@@ -146,6 +155,63 @@
         <button id="close-palette-btn" type="button" class="font-mono text-[11px] px-2 py-0.5 rounded" style="background: var(--surface-soft); color: var(--muted);">ESC</button>
       </div>
       <div id="palette-results" class="max-h-80 overflow-y-auto divide-y" style="border-color: var(--border);"></div>
+    </div>
+  </div>
+
+  <!-- SPOKEN AUDIO SITREP MODAL (P) -->
+  <div id="audio-player-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+    <div class="glass-panel w-full max-w-2xl overflow-hidden shadow-2xl" style="background: var(--surface-solid); border-color: var(--border);">
+      <!-- Header -->
+      <div class="px-5 py-3.5 border-b flex items-center justify-between" style="border-color: var(--border);">
+        <div class="flex items-center gap-2.5">
+          <div class="w-2.5 h-2.5 rounded-full bg-purple-500 animate-pulse shadow-[0_0_8px_#a855f7]"></div>
+          <div>
+            <div class="font-mono text-[10px] font-bold uppercase tracking-wider text-purple-600">TRIDENT NEURAL AUDIO SITREP // VOICE C2</div>
+            <h3 id="audio-modal-headline" class="text-sm font-bold mt-0.5" style="color: var(--ink);">Strategic Executive Briefing</h3>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span id="audio-status-badge" class="font-mono text-[10px] font-semibold px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300">IDLE</span>
+          <button id="close-audio-modal-btn" type="button" class="w-7 h-7 rounded-lg flex items-center justify-center hover:opacity-75 font-mono text-xs" style="background: var(--surface-soft); color: var(--ink);">✕</button>
+        </div>
+      </div>
+
+      <!-- Live Waveform Equalizer -->
+      <div class="px-5 py-4 flex items-center justify-between gap-4 border-b" style="background: var(--surface-soft); border-color: var(--border);">
+        <div class="flex items-center gap-1.5 h-8">
+          <span class="w-1 bg-purple-500 rounded-full h-2 eq-bar" style="animation-delay: 0.1s"></span>
+          <span class="w-1 bg-purple-600 rounded-full h-4 eq-bar" style="animation-delay: 0.3s"></span>
+          <span class="w-1 bg-indigo-500 rounded-full h-6 eq-bar" style="animation-delay: 0.2s"></span>
+          <span class="w-1 bg-blue-500 rounded-full h-3 eq-bar" style="animation-delay: 0.5s"></span>
+          <span class="w-1 bg-purple-500 rounded-full h-7 eq-bar" style="animation-delay: 0.15s"></span>
+          <span class="w-1 bg-indigo-600 rounded-full h-5 eq-bar" style="animation-delay: 0.4s"></span>
+          <span class="w-1 bg-purple-400 rounded-full h-2 eq-bar" style="animation-delay: 0.25s"></span>
+          <span class="w-1 bg-blue-600 rounded-full h-6 eq-bar" style="animation-delay: 0.35s"></span>
+          <span class="w-1 bg-indigo-500 rounded-full h-4 eq-bar" style="animation-delay: 0.45s"></span>
+          <span class="w-1 bg-purple-600 rounded-full h-7 eq-bar" style="animation-delay: 0.1s"></span>
+          <span class="w-1 bg-purple-400 rounded-full h-3 eq-bar" style="animation-delay: 0.3s"></span>
+          <span class="w-1 bg-blue-500 rounded-full h-5 eq-bar" style="animation-delay: 0.2s"></span>
+        </div>
+
+        <!-- Playback Controls -->
+        <div class="flex items-center gap-2">
+          <button id="audio-play-toggle" type="button" class="px-4 py-1.5 rounded-xl text-xs font-mono font-bold text-white bg-gradient-to-r from-purple-600 to-indigo-600 shadow-md hover:opacity-90 flex items-center gap-1.5">
+            <span id="audio-play-icon">▶</span>
+            <span id="audio-play-lbl">PLAY BRIEF</span>
+          </button>
+          <button id="audio-replay-btn" type="button" title="Restart Audio Brief" class="px-2.5 py-1.5 rounded-xl text-xs font-mono font-semibold glass-chip hover:border-purple-400">↺</button>
+          <button id="audio-speed-btn" type="button" title="Change Cadence Speed" class="px-2.5 py-1.5 rounded-xl text-xs font-mono font-bold glass-chip hover:border-purple-400">1.05x</button>
+        </div>
+      </div>
+
+      <!-- Synchronized Transcript Body -->
+      <div id="audio-transcript-container" class="p-5 max-h-72 overflow-y-auto space-y-3 text-xs leading-relaxed" style="color: var(--ink-2);"></div>
+
+      <!-- Footer Info -->
+      <div class="px-5 py-2.5 border-t text-[10px] font-mono flex items-center justify-between" style="border-color: var(--border); color: var(--muted); background: var(--surface-soft);">
+        <span>AUTHENTICATED DEFENSE SYNTHESIS // ZERO CLOUD AUDIO LEAK</span>
+        <span>SHORTCUT: [P] PLAY / PAUSE</span>
+      </div>
     </div>
   </div>
 

@@ -138,7 +138,273 @@ declare const topojson: any;
         { name: 'NASA FIRMS VIIRS NRT', status: 'FREE MAP_KEY', cadence: '~3h Satellite', latency: '340ms', detail: 'High-FRP (>=25 MW) thermal anomaly filter in api/geo/summary.js.' },
         { name: 'CelesTrak NORAD Orbits', status: 'READY (KEYLESS)', cadence: 'Hourly GP JSON', latency: '185ms', detail: 'Orbital station elements wired in api/geo/layers.js.' },
         { name: 'AISStream.io Maritime', status: 'RUST DAEMON', cadence: 'Real-Time WS', latency: '45ms', detail: 'Server-side Rust WebSocket tracker in crates/trident-server/src/ais.rs.' }
-      ]
+      ],
+      audioScript: {
+        headline: 'Trident Strategic C2 Intelligence Briefing',
+        paragraphs: [
+          'Director, as of this hour, the composite Threat Convergence Index stands at 87 out of 100, remaining in the elevated multi-domain nexus.',
+          'In the kinetic and maritime theaters, anti-ship ballistic missile alerts in Bab-el-Mandeb continue to enforce commercial diversion around the Cape of Good Hope, adding approximately twelve transit days and sustaining a 1.8 percent war-risk premium on European crude benchmarks. Meanwhile, naval maneuvers in the western approaches of the Strait of Hormuz maintain heightened surveillance across 20.5 million barrels per day of daily petroleum flow.',
+          'Macroeconomic buffers show structural compression. Cushing hub inventories remain depressed near tank bottoms at 33 percent capacity, limiting immediate domestic cushion. Concurrently, the US Treasury ten-year to two-year yield spread has dis-inverted to positive 30 basis points, signaling term premium repricing and sovereign refinancing friction.',
+          'On the cyber front, CISA and Five Eyes advisories confirm persistent Living-off-the-Land staging by Volt Typhoon across maritime port logistics and Gulf Coast pipeline control networks. Adversaries are actively leveraging perimeter gateway vulnerabilities including CVE-2024-3400 and CVE-2024-21887 to establish persistent telemetry access.',
+          'Recommended strategic directives: First, enforce out-of-band multi-factor authentication and zero-trust firmware quarantine across all coastal pipeline gateways. Second, lock ninety-day distillate crack spread hedges for rerouted maritime fleets. Third, maintain continuous satellite telemetry monitoring across southern Red Sea transit corridors. End of brief.'
+        ]
+      },
+      adversarialWargames: {
+        'Hormuz 45D + Volt Typhoon OT': {
+          scenarioId: 'SCENARIO-HORMUZ-CYBER-ALPHA',
+          scenarioName: 'Hormuz 45D + Volt Typhoon OT',
+          initialThreatIndex: 87,
+          peakThreatIndex: 93,
+          finalEquilibriumIndex: 72,
+          turns: [
+            {
+              round: 1,
+              roundTitle: 'Round 01: Initial Chokepoint Interdiction & Stealth SCADA Staging',
+              redMove: {
+                round: 1,
+                adversaryName: 'Volt Typhoon (PRC MSS) + IRGC Maritime',
+                stateSponsor: 'China / Iran Regional Axis',
+                operationCodename: 'Operation Iron Grip',
+                vectorType: 'Kinetic NOTAM + Firmware Living-off-the-Land',
+                targetAsset: 'Strait of Hormuz western approaches + Gulf Coast pipeline routers',
+                signatureTtp: 'T1078 Valid Accounts + T1190 Public Edge Exploitation',
+                tacticalAction: 'IRGC naval exclusion drill combined with stealth persistence across 14 pipeline compressor routers.',
+                grossMarketShock: '+$6.40/bbl prompt crude jump; +18 bps US 10Y yield spike.',
+                escalationScore: 72
+              },
+              blueCounter: {
+                round: 1,
+                defenseForce: 'US NAVCENT Fifth Fleet + CISA JCDC',
+                doctrineResponse: 'Deterrence Patrol & Emergency Zero-Trust Network Quarantine',
+                operationalDirective: 'Deploy carrier strike group escort to international tanker corridor; mandate immediate out-of-band firmware isolation on edge VPNs.',
+                strategicBufferDeployed: 'Alert notice issued to US Strategic Petroleum Reserve for potential 1.0M bbl/d surge.',
+                containmentEfficiencyPct: 68,
+                netResidualRisk: 'Crude volatility partially absorbed; cyber reconnaissance active in secondary networks.'
+              },
+              brentProjectedUsd: 80.68,
+              euGasStoragePct: 86.4,
+              us10yYieldPct: 4.54,
+              threatIndexAfterContainment: 76
+            },
+            {
+              round: 2,
+              roundTitle: 'Round 02: Asymmetric Escalation & Coordinated Grid Wiper Surge',
+              redMove: {
+                round: 2,
+                adversaryName: 'Sandworm (Unit 74455 / GRU)',
+                stateSponsor: 'Russian Federation',
+                operationCodename: 'Operation Black Ice',
+                vectorType: 'OT/ICS Industroyer2 Substation Disruption',
+                targetAsset: 'Black Sea grain terminal electrical feeds & Romanian interconnectors',
+                signatureTtp: 'T0855 Unauthorized Command Messages + T0814 Denial of Control',
+                tacticalAction: 'Injecting false IEC-104 telemetry to trip high-voltage circuit breakers at maritime export hubs.',
+                grossMarketShock: 'European power spot rates +24%; wheat shipping logistics freeze.',
+                escalationScore: 89
+              },
+              blueCounter: {
+                round: 2,
+                defenseForce: 'NATO Cyber Defense Management Authority + ENTSO-E',
+                doctrineResponse: 'Manual Pneumatic Substation Failover & Cross-Border Power Routing',
+                operationalDirective: 'Disconnect digital telemetry feeds to manual air-gap control; activate synchronous grid islanding protocol.',
+                strategicBufferDeployed: 'European Strategic Natural Gas reserve withdrawal triggered (+85 mcm/day).',
+                containmentEfficiencyPct: 82,
+                netResidualRisk: 'Substation trip isolated within 38 minutes; agricultural export backlog continues.'
+              },
+              brentProjectedUsd: 87.40,
+              euGasStoragePct: 81.2,
+              us10yYieldPct: 4.62,
+              threatIndexAfterContainment: 84
+            },
+            {
+              round: 3,
+              roundTitle: 'Round 03: Strategic Counter-Surge & Allied Market Stabilization',
+              redMove: {
+                round: 3,
+                adversaryName: 'Ansar Allah + Iranian Drone Swarm',
+                stateSponsor: 'Yemen / IRGC',
+                operationCodename: 'Operation Strait Gate',
+                vectorType: 'ASBM Anti-Ship Missile & Uncrewed Surface Vessels',
+                targetAsset: 'Bab-el-Mandeb commercial container fleets',
+                signatureTtp: 'Asymmetric saturation swarm against radar defense corridors',
+                tacticalAction: 'Simultaneous 8-drone salvo aimed at mid-channel bulk carrier convoy.',
+                grossMarketShock: '+35% container spot rates (SCFI); war risk hull insurance tripled.',
+                escalationScore: 93
+              },
+              blueCounter: {
+                round: 3,
+                defenseForce: 'Coalition Combined Maritime Forces (CMF) + IEA',
+                doctrineResponse: 'Kinetic Aegis Interception + Full-Scale 30M bbl SPR Drawdown',
+                operationalDirective: 'SM-2 / Sea Ceptor intercepts 7 of 8 incoming projectiles; 1 vessel sustains minor hull damage. IEA members coordinate 1.5M bbl/day collective release.',
+                strategicBufferDeployed: 'US SPR 30M bbl drawdown tender activated; Cushing stocks receive emergency pipeline injection.',
+                containmentEfficiencyPct: 91,
+                netResidualRisk: 'Cape of Good Hope rerouting remains standard; prompt crude backwardation caps at +$3.50/bbl.'
+              },
+              brentProjectedUsd: 84.15,
+              euGasStoragePct: 78.5,
+              us10yYieldPct: 4.56,
+              threatIndexAfterContainment: 78
+            },
+            {
+              round: 4,
+              roundTitle: 'Round 04: Tactical Equilibrium & Net Systemic Resilience',
+              redMove: {
+                round: 4,
+                adversaryName: 'Consortium of State Syndicates',
+                stateSponsor: 'Multi-Theater Axis',
+                operationCodename: 'Consolidated Pressure Horizon',
+                vectorType: 'DDoS Extortion + Financial Payment Disruption',
+                targetAsset: 'SWIFT maritime insurance clearing and energy billing APIs',
+                signatureTtp: 'T1498 Network Denial of Service + Ransomware Extortion',
+                tacticalAction: 'Large-scale 4.2 Tbps volumetric flood targeting London and Geneva maritime settlement houses.',
+                grossMarketShock: 'Short-term letter-of-credit delays for crude cargoes.',
+                escalationScore: 65
+              },
+              blueCounter: {
+                round: 4,
+                defenseForce: 'Federal Reserve / Bank of England + Cloudflare/Akamai Defense',
+                doctrineResponse: 'Bilateral Central Bank Currency Swaps + Anycast Scrubbing',
+                operationalDirective: 'Anycast cloud scrubbing absorbs 99.4% of flood; emergency liquidity swap lines guarantee trade settlement within 2 hours.',
+                strategicBufferDeployed: '$40B bilateral trade liquidity window activated.',
+                containmentEfficiencyPct: 96,
+                netResidualRisk: 'Systemic payment cascade averted; risk premium stabilizes at manageable plateau.'
+              },
+              brentProjectedUsd: 81.90,
+              euGasStoragePct: 76.8,
+              us10yYieldPct: 4.51,
+              threatIndexAfterContainment: 72
+            }
+          ],
+          executiveTakeaway: 'Allied buffer deployment (30M bbl SPR release + zero-trust OT quarantine) successfully absorbed 76% of gross adversarial escalation, containing peak Brent prices below $88/bbl and establishing a stable equilibrium.',
+          fragilityRating: 'MODERATE // Strategic Buffers Effective but Require 180-Day Replenishment'
+        },
+        'Red Sea Transit Crisis': {
+          scenarioId: 'SCENARIO-REDSEA-ASBM-BETA',
+          scenarioName: 'Red Sea Transit Crisis',
+          initialThreatIndex: 82,
+          peakThreatIndex: 91,
+          finalEquilibriumIndex: 68,
+          turns: [
+            {
+              round: 1,
+              roundTitle: 'Round 01: ASBM Ballistic Salvo on Commercial Convoy',
+              redMove: {
+                round: 1,
+                adversaryName: 'Ansar Allah Coastal Missile Brigades',
+                stateSponsor: 'Yemen / Regional Axis',
+                operationCodename: 'Operation Red Horizon',
+                vectorType: 'Anti-Ship Ballistic Missiles (ASBM)',
+                targetAsset: 'Bab-el-Mandeb Western Transit Lane',
+                signatureTtp: 'T1584 Shore-to-Ship Radar Guidance + Salvo Saturation',
+                tacticalAction: 'Simultaneous salvo of four Khalij Fars ASBMs targeting container vessels.',
+                grossMarketShock: 'Spot container freight rates spike +28%; 14 commercial carriers divert to Cape route.',
+                escalationScore: 78
+              },
+              blueCounter: {
+                round: 1,
+                defenseForce: 'Combined Task Force 153 (Operation Prosperity Guardian)',
+                doctrineResponse: 'Aegis Combat System Multi-Target Radar Interception',
+                operationalDirective: 'USS Mason & HMS Diamond deploy Aster-30 / SM-2 missile interceptors; 100% engagement success.',
+                strategicBufferDeployed: 'Emergency maritime escort corridors activated for critical crude tankers.',
+                containmentEfficiencyPct: 75,
+                netResidualRisk: 'No hull impacts; commercial insurance rates rise +120 bps.'
+              },
+              brentProjectedUsd: 79.40,
+              euGasStoragePct: 88.1,
+              us10yYieldPct: 4.51,
+              threatIndexAfterContainment: 74
+            },
+            {
+              round: 2,
+              roundTitle: 'Round 02: Swarm USV & Fiber Drone Infiltration',
+              redMove: {
+                round: 2,
+                adversaryName: 'Asymmetric Maritime Drone Command',
+                stateSponsor: 'IRGC Quds Force / Ansar Allah',
+                operationCodename: 'Operation Phantom Wave',
+                vectorType: 'Explosive Uncrewed Surface Vessels (USVs) + Loitering Munitions',
+                targetAsset: 'Commercial bulk carrier rudder assemblies in narrow strait transit',
+                signatureTtp: 'Asymmetric swarm diversion + Low-radar cross-section night assault',
+                tacticalAction: 'Six low-profile drone boats launch coordinated pincer attack at 0200Z.',
+                grossMarketShock: 'Global container shipping transit times extend +12 days; bunker fuel costs surge.',
+                escalationScore: 88
+              },
+              blueCounter: {
+                round: 2,
+                defenseForce: 'EU NAVFOR Operation Aspides + Coalition Air Patrols',
+                doctrineResponse: 'Close-in Weapons System (CIWS) + 76mm Gunfire Interdiction',
+                operationalDirective: 'Helicopter gunships and Phalanx CIWS destroy 5 USVs; 1 USV disabled via electronic warfare jammer.',
+                strategicBufferDeployed: 'Port of Djibouti emergency repair berth on standby.',
+                containmentEfficiencyPct: 86,
+                netResidualRisk: 'Convoy transit preserved; civilian maritime crews demand 100% danger bonuses.'
+              },
+              brentProjectedUsd: 82.80,
+              euGasStoragePct: 84.5,
+              us10yYieldPct: 4.58,
+              threatIndexAfterContainment: 79
+            },
+            {
+              round: 3,
+              roundTitle: 'Round 03: Radar Site Neutralization & Strategic Reserve Advisory',
+              redMove: {
+                round: 3,
+                adversaryName: 'Coastal Defense Launch Units',
+                stateSponsor: 'Yemen / Regional Axis',
+                operationCodename: 'Operation Iron Retaliation',
+                vectorType: 'Mobile Camouflaged TELs & GPS Electronic Jamming',
+                targetAsset: 'Red Sea International Airway & Maritime AIS transponder networks',
+                signatureTtp: 'T1499 Terminal GPS Spoofing + Mobile Launcher Relocation',
+                tacticalAction: 'Pervasive GPS spoofing forces 32 commercial vessels into dead-reckoning navigation.',
+                grossMarketShock: 'Prompt Brent crude reaches $85.50/bbl on localized delivery bottleneck panic.',
+                escalationScore: 84
+              },
+              blueCounter: {
+                round: 3,
+                defenseForce: 'US Central Command (CENTCOM) Combined Strike Group',
+                doctrineResponse: 'Preemptive Precision Tomahawk Strike on Sensor & Radar Nodes',
+                operationalDirective: 'Destroyed 6 coastal radar sites and 3 buried missile storage bunkers in Hudaydah.',
+                strategicBufferDeployed: 'IEA coordinated supply advisory assures markets of adequate European distillate reserves.',
+                containmentEfficiencyPct: 92,
+                netResidualRisk: 'Adversary missile launch cadence drops by 78% over subsequent 72 hours.'
+              },
+              brentProjectedUsd: 80.20,
+              euGasStoragePct: 82.0,
+              us10yYieldPct: 4.52,
+              threatIndexAfterContainment: 72
+            },
+            {
+              round: 4,
+              roundTitle: 'Round 04: Convoy Standardization & Sustained Transit Defense',
+              redMove: {
+                round: 4,
+                adversaryName: 'Fragmented Coastal Insurgents',
+                stateSponsor: 'Regional Axis Elements',
+                operationCodename: 'Operation Residual Spite',
+                vectorType: 'Sporadic Uncoordinated Rocket Fire & Cyber Propaganda',
+                targetAsset: 'Maritime satellite internet gateways (Starlink/Inmarsat terminals)',
+                signatureTtp: 'T1498 Satellite Uplink Jamming',
+                tacticalAction: 'Intermittent RF jamming attempts against commercial vessel SATCOM.',
+                grossMarketShock: 'Marginal freight index volatility; baseline risk priced in.',
+                escalationScore: 54
+              },
+              blueCounter: {
+                round: 4,
+                defenseForce: 'NATO / Coalition Maritime Convoy System',
+                doctrineResponse: 'Permanent Frequency Hopping + Convoy Escort Grouping',
+                operationalDirective: 'Vessels transit in grouped flotillas of 6 under guided missile destroyer air cover.',
+                strategicBufferDeployed: 'Suez Canal Authority implements temporary transit fee rebates (-15%).',
+                containmentEfficiencyPct: 95,
+                netResidualRisk: 'Predictable transit schedule established; residual premium stabilizes below 0.8%.'
+              },
+              brentProjectedUsd: 77.80,
+              euGasStoragePct: 80.2,
+              us10yYieldPct: 4.48,
+              threatIndexAfterContainment: 68
+            }
+          ],
+          executiveTakeaway: 'Aegis air-defense saturation and precision strikes on coastal sensor arrays absorbed 82% of asymmetric threat potential, keeping the maritime corridor open with structured convoy protection.',
+          fragilityRating: 'LOW-TO-MODERATE // Naval Escort Sustained; Air Superiority Intact'
+        }
+      }
     };
 
     // =========================================================================
@@ -163,6 +429,18 @@ declare const topojson: any;
       graphFilter: 'ALL',
       layers: { chokepoints: true, routes: true, incidents: true },
       wargame: { closureDays: 45, cyberSeverity: 65, sprRelease: 30, preset: 'Hormuz 45D + Volt Typhoon OT' },
+      wargameMode: 'adversarial',
+      adversarial: {
+        currentRound: 1,
+        isAutoPlaying: false,
+        timer: null,
+        preset: 'Hormuz 45D + Volt Typhoon OT'
+      },
+      audioBrief: {
+        isPlaying: false,
+        currentPara: 0,
+        speed: 1.05
+      },
       worldFeatures: null,
       landDots: [], // Pre-sampled luminous hex-dot lattice on real continents
       globeRafId: null
@@ -986,16 +1264,217 @@ declare const topojson: any;
     }
 
     function renderAiView() {
+      const mode = state.wargameMode;
+
+      if (mode === 'adversarial') {
+        const scenarioKey = state.adversarial.preset in DATA.adversarialWargames
+          ? state.adversarial.preset
+          : Object.keys(DATA.adversarialWargames)[0];
+        const scenario = DATA.adversarialWargames[scenarioKey];
+        const roundNum = state.adversarial.currentRound;
+        const turn = scenario.turns.find(t => t.round === roundNum) || scenario.turns[0];
+
+        return `
+          <div class="space-y-5 view-animate">
+            <!-- HEADER WITH DUAL-MODE SWITCHER -->
+            <div class="glass-panel p-4 md:p-5 flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <div class="font-mono text-[11px] font-semibold uppercase tracking-wider" style="color: var(--accent);">AUTONOMOUS ADVERSARIAL WAR-GAME // MULTI-AGENT RED vs BLUE</div>
+                <h2 class="text-lg font-bold mt-0.5">Game-Theoretic Escalation Ladder &amp; Buffer Containment</h2>
+              </div>
+              <div class="flex items-center gap-2">
+                <button type="button" id="btn-mode-adversarial" class="px-3 py-1.5 rounded-xl font-mono text-xs font-bold transition-all bg-gradient-to-r from-red-600 via-purple-600 to-indigo-600 text-white shadow-md">
+                  ⚔️ RED vs BLUE WAR-GAME
+                </button>
+                <button type="button" id="btn-mode-sensitivity" class="px-3 py-1.5 rounded-xl font-mono text-xs font-bold transition-all glass-chip hover:border-indigo-400">
+                  📊 P10/P90 SENSITIVITY FAN
+                </button>
+              </div>
+            </div>
+
+            <!-- SCENARIO & ROUND CONTROLS -->
+            <div class="glass-panel px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="font-mono text-[10px] uppercase font-bold mr-1" style="color: var(--muted);">THEATER SCENARIO:</span>
+                ${Object.keys(DATA.adversarialWargames).map(name => `
+                  <button type="button" data-adv-preset="${name}" class="px-2.5 py-1 rounded-lg font-mono text-xs font-semibold border transition-all ${scenarioKey === name ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm' : 'glass-chip hover:border-indigo-400'}">${name}</button>
+                `).join('')}
+              </div>
+
+              <!-- LADDER CONTROLS -->
+              <div class="flex items-center gap-2">
+                <button id="btn-adv-autoplay" type="button" class="px-3 py-1.5 rounded-xl font-mono text-xs font-bold text-white shadow-sm transition-all" style="background: linear-gradient(135deg, #4F6BFF, #7C3AED);">
+                  ${state.adversarial.isAutoPlaying ? '⏸ PAUSE LADDER' : '▶ AUTO-PLAY LADDER'}
+                </button>
+                <button id="btn-adv-prev" type="button" title="Previous Round" class="glass-chip px-2.5 py-1.5 font-mono text-xs font-bold hover:border-indigo-400">⏮ PREV</button>
+                <button id="btn-adv-next" type="button" title="Next Round" class="glass-chip px-2.5 py-1.5 font-mono text-xs font-bold hover:border-indigo-400">NEXT ⏭</button>
+              </div>
+            </div>
+
+            <!-- ROUND STEP TABS -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+              ${scenario.turns.map(t => {
+                const isActive = t.round === roundNum;
+                return `
+                  <button type="button" data-adv-round="${t.round}" class="text-left p-3 rounded-xl border transition-all ${isActive ? 'bg-indigo-500/10 border-indigo-500 shadow-md ring-1 ring-indigo-500/30' : 'glass-panel hover:border-slate-400'}">
+                    <div class="flex items-center justify-between">
+                      <span class="font-mono text-[10px] font-bold ${isActive ? 'text-indigo-600 dark:text-indigo-400' : ''}" style="${!isActive ? 'color: var(--muted);' : ''}">ROUND 0${t.round}</span>
+                      <span class="font-mono text-[10px] px-1.5 py-0.5 rounded ${t.threatIndexAfterContainment >= 80 ? 'bg-rose-500/15 text-rose-600 font-bold' : 'bg-emerald-500/15 text-emerald-600 font-bold'}">IDX ${t.threatIndexAfterContainment}</span>
+                    </div>
+                    <div class="text-xs font-bold mt-1 line-clamp-1" style="color: var(--ink);">${t.roundTitle.split(': ')[1] || t.roundTitle}</div>
+                  </button>
+                `;
+              }).join('')}
+            </div>
+
+            <!-- TACTICAL CONFRONTATION: RED CELL vs BLUE CELL -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+              <!-- RED CELL OFFENSIVE DIRECTIVE -->
+              <div class="glass-panel p-5 red-cell-card space-y-3.5">
+                <div class="flex items-center justify-between border-b pb-2.5" style="border-color: var(--border);">
+                  <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span>
+                    <span class="font-mono text-xs font-bold uppercase text-rose-600 dark:text-rose-400">RED CELL // ASYMMETRIC OFFENSIVE DIRECTIVE</span>
+                  </div>
+                  <span class="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-rose-500/15 text-rose-600">ESCALATION: ${turn.redMove.escalationScore}/100</span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                  <div><span class="font-mono text-[10px] block" style="color: var(--muted);">ADVERSARY ENTITY</span><strong style="color: var(--ink);">${turn.redMove.adversaryName}</strong></div>
+                  <div><span class="font-mono text-[10px] block" style="color: var(--muted);">STATE SPONSOR</span><strong class="text-rose-600 dark:text-rose-400">${turn.redMove.stateSponsor}</strong></div>
+                  <div><span class="font-mono text-[10px] block" style="color: var(--muted);">OPERATION CODENAME</span><strong style="color: var(--ink);">${turn.redMove.operationCodename}</strong></div>
+                  <div><span class="font-mono text-[10px] block" style="color: var(--muted);">ATTACK VECTOR</span><strong style="color: var(--ink);">${turn.redMove.vectorType}</strong></div>
+                </div>
+
+                <div>
+                  <span class="font-mono text-[10px] block" style="color: var(--muted);">TARGET ASSET</span>
+                  <div class="text-xs font-medium mt-0.5" style="color: var(--ink);">${turn.redMove.targetAsset}</div>
+                </div>
+
+                <div class="glass-chip p-3 rounded-lg text-xs leading-relaxed" style="color: var(--ink-2); border-color: rgba(244,63,94,0.3);">
+                  <div class="font-mono text-[10px] font-bold text-rose-600 dark:text-rose-400 mb-1">TACTICAL ACTION:</div>
+                  ${turn.redMove.tacticalAction}
+                </div>
+
+                <div class="flex items-center justify-between text-xs pt-1 border-t" style="border-color: var(--border);">
+                  <span class="font-mono text-[10px] text-rose-600 dark:text-rose-400">GROSS MARKET SHOCK:</span>
+                  <span class="font-mono font-bold text-rose-600 dark:text-rose-400">${turn.redMove.grossMarketShock}</span>
+                </div>
+                <div class="text-[10px] font-mono" style="color: var(--muted);">
+                  SIGNATURE TTP: <span class="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 font-semibold" style="color: var(--ink);">${turn.redMove.signatureTtp}</span>
+                </div>
+              </div>
+
+              <!-- BLUE CELL ALLIED COUNTER DIRECTIVE -->
+              <div class="glass-panel p-5 blue-cell-card space-y-3.5">
+                <div class="flex items-center justify-between border-b pb-2.5" style="border-color: var(--border);">
+                  <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-sky-500 animate-pulse"></span>
+                    <span class="font-mono text-xs font-bold uppercase text-sky-600 dark:text-sky-400">BLUE CELL // ALLIED COUNTER DIRECTIVE</span>
+                  </div>
+                  <span class="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-600">CONTAINMENT: ${turn.blueCounter.containmentEfficiencyPct}%</span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                  <div><span class="font-mono text-[10px] block" style="color: var(--muted);">DEFENSE FORCE</span><strong style="color: var(--ink);">${turn.blueCounter.defenseForce}</strong></div>
+                  <div><span class="font-mono text-[10px] block" style="color: var(--muted);">DOCTRINE RESPONSE</span><strong class="text-sky-600 dark:text-sky-400">${turn.blueCounter.doctrineResponse}</strong></div>
+                </div>
+
+                <div>
+                  <span class="font-mono text-[10px] block" style="color: var(--muted);">STRATEGIC BUFFER DEPLOYED</span>
+                  <div class="text-xs font-medium text-emerald-600 dark:text-emerald-400 mt-0.5">${turn.blueCounter.strategicBufferDeployed}</div>
+                </div>
+
+                <div class="glass-chip p-3 rounded-lg text-xs leading-relaxed" style="color: var(--ink-2); border-color: rgba(14,165,233,0.3);">
+                  <div class="font-mono text-[10px] font-bold text-sky-600 dark:text-sky-400 mb-1">OPERATIONAL DIRECTIVE:</div>
+                  ${turn.blueCounter.operationalDirective}
+                </div>
+
+                <div class="flex items-center justify-between text-xs pt-1 border-t" style="border-color: var(--border);">
+                  <span class="font-mono text-[10px] text-sky-600 dark:text-sky-400">NET RESIDUAL RISK:</span>
+                  <span class="font-mono text-xs" style="color: var(--ink-2);">${turn.blueCounter.netResidualRisk}</span>
+                </div>
+
+                <!-- CONTAINMENT BAR -->
+                <div>
+                  <div class="flex justify-between text-[10px] font-mono mb-1" style="color: var(--muted);">
+                    <span>ABSORPTION EFFICIENCY</span>
+                    <span class="font-bold text-emerald-600">${turn.blueCounter.containmentEfficiencyPct}%</span>
+                  </div>
+                  <div class="w-full bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+                    <div class="bg-gradient-to-r from-sky-500 to-emerald-500 h-full rounded-full transition-all duration-500" style="width: ${turn.blueCounter.containmentEfficiencyPct}%;"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ROUND EQUILIBRIUM TELEMETRY -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3.5">
+              <div class="glass-panel p-4">
+                <div class="font-mono text-[10px] uppercase" style="color: var(--muted);">Post-Containment Threat Index</div>
+                <div class="font-mono text-2xl font-bold tabular mt-1 ${turn.threatIndexAfterContainment >= 80 ? 'text-rose-600' : 'text-indigo-600'}">
+                  ${turn.threatIndexAfterContainment}<span class="text-xs font-normal" style="color: var(--muted);">/100</span>
+                </div>
+              </div>
+              <div class="glass-panel p-4">
+                <div class="font-mono text-[10px] uppercase" style="color: var(--muted);">Brent Crude Projected</div>
+                <div class="font-mono text-2xl font-bold tabular mt-1 text-amber-600">
+                  $${turn.brentProjectedUsd.toFixed(2)}
+                </div>
+              </div>
+              <div class="glass-panel p-4">
+                <div class="font-mono text-[10px] uppercase" style="color: var(--muted);">EU Gas Storage</div>
+                <div class="font-mono text-2xl font-bold tabular mt-1 text-sky-600">
+                  ${turn.euGasStoragePct.toFixed(1)}%
+                </div>
+              </div>
+              <div class="glass-panel p-4">
+                <div class="font-mono text-[10px] uppercase" style="color: var(--muted);">US 10Y Yield</div>
+                <div class="font-mono text-2xl font-bold tabular mt-1" style="color: var(--ink);">
+                  ${turn.us10yYieldPct.toFixed(2)}%
+                </div>
+              </div>
+            </div>
+
+            <!-- EXECUTIVE TAKEAWAY & FRAGILITY -->
+            <div class="glass-panel p-5 border-l-4 border-indigo-600 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="font-mono text-[11px] font-bold uppercase text-indigo-600">EXECUTIVE STRATEGIC TAKEAWAY</span>
+                <span class="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-600">${scenario.fragilityRating}</span>
+              </div>
+              <p class="text-xs leading-relaxed" style="color: var(--ink-2);">${scenario.executiveTakeaway}</p>
+            </div>
+          </div>
+        `;
+      }
+
+      // SENSITIVITY FAN MODE
       const m = computeWargame();
       const { closureDays, cyberSeverity, sprRelease, preset } = state.wargame;
       const W = 540, H = 185, pad = { l: 42, r: 64, t: 18, b: 26 };
-      const sy = v => H - pad.b - ((v - 55) / (145 - 55)) * (H - pad.t - pad.b);
-      const sx = i => pad.l + (i / 6) * (W - pad.l - pad.r);
+      const sy = (v: number) => H - pad.b - ((v - 55) / (145 - 55)) * (H - pad.t - pad.b);
+      const sx = (i: number) => pad.l + (i / 6) * (W - pad.l - pad.r);
 
       return `
         <div class="space-y-5 view-animate">
-          <div class="glass-panel p-5 flex flex-wrap items-center justify-between gap-4">
-            <div><div class="font-mono text-[11px] font-semibold uppercase tracking-wider" style="color: var(--accent);">120Hz DETERMINISTIC WAR-GAMING + P10/P50/P90 CONES</div><h2 class="text-lg font-bold mt-0.5">Cross-Domain Shock Simulator &amp; Historical Replay</h2></div>
+          <!-- HEADER WITH DUAL-MODE SWITCHER -->
+          <div class="glass-panel p-4 md:p-5 flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <div class="font-mono text-[11px] font-semibold uppercase tracking-wider" style="color: var(--accent);">120Hz DETERMINISTIC WAR-GAMING + P10/P50/P90 CONES</div>
+              <h2 class="text-lg font-bold mt-0.5">Cross-Domain Shock Simulator &amp; Sensitivity Modeling</h2>
+            </div>
+            <div class="flex items-center gap-2">
+              <button type="button" id="btn-mode-adversarial" class="px-3 py-1.5 rounded-xl font-mono text-xs font-bold transition-all glass-chip hover:border-indigo-400">
+                ⚔️ RED vs BLUE WAR-GAME
+              </button>
+              <button type="button" id="btn-mode-sensitivity" class="px-3 py-1.5 rounded-xl font-mono text-xs font-bold transition-all bg-indigo-600 text-white shadow-md">
+                📊 P10/P90 SENSITIVITY FAN
+              </button>
+            </div>
+          </div>
+
+          <div class="glass-panel px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+            <span class="font-mono text-[10px] uppercase font-bold" style="color: var(--muted);">SENSITIVITY PRESETS:</span>
             <div class="flex flex-wrap gap-1.5">
               <button type="button" data-wg-preset="suez" class="glass-chip px-2.5 py-1.5 text-xs font-mono hover:border-indigo-400">2021 Suez (6D)</button>
               <button type="button" data-wg-preset="redsea" class="glass-chip px-2.5 py-1.5 text-xs font-mono hover:border-indigo-400">2024 Red Sea Reroute</button>
@@ -1144,6 +1623,194 @@ declare const topojson: any;
     }
 
     // =========================================================================
+    // MODULE 1: SPOKEN AUDIO SITREP ENGINE (TACTICAL SPEECH SYNTHESIS)
+    // =========================================================================
+    function openAudioSitrepModal() {
+      playTick(740);
+      const m = document.getElementById('audio-player-modal');
+      if (!m) return;
+      m.classList.remove('hidden');
+      m.classList.add('flex');
+      renderAudioTranscript();
+      updateAudioControlsUi();
+    }
+
+    function closeAudioSitrepModal() {
+      playTick(500);
+      const m = document.getElementById('audio-player-modal');
+      if (!m) return;
+      m.classList.add('hidden');
+      m.classList.remove('flex');
+    }
+
+    function renderAudioTranscript() {
+      const container = document.getElementById('audio-transcript-container');
+      if (!container) return;
+      const script = DATA.audioScript;
+      const headlineEl = document.getElementById('audio-modal-headline');
+      if (headlineEl) headlineEl.textContent = script.headline;
+
+      container.innerHTML = script.paragraphs.map((para: string, idx: number) => `
+        <div id="audio-para-${idx}" class="p-3 rounded-xl transition-all cursor-pointer ${idx === state.audioBrief.currentPara ? 'spoken-sentence-active' : 'glass-chip hover:border-purple-300'}" data-audio-para-idx="${idx}">
+          <div class="font-mono text-[10px] uppercase font-bold text-purple-600 dark:text-purple-400 mb-1">PARAGRAPH 0${idx + 1}</div>
+          <p class="text-xs leading-relaxed" style="color: var(--ink);">${para}</p>
+        </div>
+      `).join('');
+
+      container.querySelectorAll('[data-audio-para-idx]').forEach(el => {
+        el.addEventListener('click', () => {
+          playTick(720);
+          const idx = Number(el.getAttribute('data-audio-para-idx'));
+          jumpToAudioPara(idx);
+        });
+      });
+    }
+
+    function setEqualizerActive(active: boolean) {
+      const bars = document.querySelectorAll('.eq-bar');
+      bars.forEach(b => b.classList.toggle('eq-bar-live', active));
+      const waveIcon = document.getElementById('audio-wave-icon');
+      if (waveIcon) waveIcon.classList.toggle('animate-pulse', active);
+    }
+
+    function updateAudioControlsUi() {
+      const isPlaying = state.audioBrief.isPlaying;
+      const playLbl = document.getElementById('audio-play-lbl');
+      const playIcon = document.getElementById('audio-play-icon');
+      const statusBadge = document.getElementById('audio-status-badge');
+      const sitrepLbl = document.getElementById('audio-sitrep-lbl');
+
+      if (playLbl) playLbl.textContent = isPlaying ? 'PAUSE BRIEF' : 'PLAY BRIEF';
+      if (playIcon) playIcon.textContent = isPlaying ? '⏸' : '▶';
+      if (statusBadge) {
+        statusBadge.textContent = isPlaying ? `BROADCASTING (P0${state.audioBrief.currentPara + 1})` : 'IDLE';
+        statusBadge.className = isPlaying
+          ? 'font-mono text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 animate-pulse'
+          : 'font-mono text-[10px] font-semibold px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300';
+      }
+      if (sitrepLbl) {
+        sitrepLbl.textContent = isPlaying ? 'AUDIO LIVE' : 'AUDIO SITREP [P]';
+      }
+      setEqualizerActive(isPlaying);
+
+      document.querySelectorAll('#audio-transcript-container [id^="audio-para-"]').forEach((el, idx) => {
+        el.className = `p-3 rounded-xl transition-all cursor-pointer ${idx === state.audioBrief.currentPara ? 'spoken-sentence-active' : 'glass-chip hover:border-purple-300'}`;
+      });
+      const activeEl = document.getElementById(`audio-para-${state.audioBrief.currentPara}`);
+      if (activeEl) {
+        activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+
+    function speakCurrentParagraph() {
+      if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+        showToast('Speech synthesis not supported in this browser environment');
+        return;
+      }
+      window.speechSynthesis.cancel();
+
+      const script = DATA.audioScript;
+      if (!script || !script.paragraphs || state.audioBrief.currentPara >= script.paragraphs.length) {
+        state.audioBrief.isPlaying = false;
+        state.audioBrief.currentPara = 0;
+        updateAudioControlsUi();
+        showToast('Audio SITREP broadcast complete');
+        return;
+      }
+
+      const text = script.paragraphs[state.audioBrief.currentPara];
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = state.audioBrief.speed;
+      utterance.pitch = 0.95;
+
+      const voices = window.speechSynthesis.getVoices();
+      const enVoice = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('Daniel') || v.name.includes('Samantha') || v.name.includes('Alex'))) || voices.find(v => v.lang.startsWith('en'));
+      if (enVoice) utterance.voice = enVoice;
+
+      utterance.onend = () => {
+        if (state.audioBrief.isPlaying) {
+          if (state.audioBrief.currentPara < script.paragraphs.length - 1) {
+            state.audioBrief.currentPara++;
+            updateAudioControlsUi();
+            setTimeout(speakCurrentParagraph, 280);
+          } else {
+            state.audioBrief.isPlaying = false;
+            state.audioBrief.currentPara = 0;
+            updateAudioControlsUi();
+            showToast('Strategic SITREP briefing concluded');
+          }
+        }
+      };
+
+      utterance.onerror = (e) => {
+        console.warn('SpeechSynthesis error:', e);
+        state.audioBrief.isPlaying = false;
+        updateAudioControlsUi();
+      };
+
+      state.audioBrief.isPlaying = true;
+      updateAudioControlsUi();
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function toggleAudioSitrep() {
+      if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+        showToast('Speech synthesis unavailable');
+        return;
+      }
+      if (state.audioBrief.isPlaying) {
+        window.speechSynthesis.cancel();
+        state.audioBrief.isPlaying = false;
+        updateAudioControlsUi();
+      } else {
+        speakCurrentParagraph();
+      }
+    }
+
+    function replayAudioSitrep() {
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) window.speechSynthesis.cancel();
+      state.audioBrief.currentPara = 0;
+      speakCurrentParagraph();
+    }
+
+    function jumpToAudioPara(idx: number) {
+      state.audioBrief.currentPara = idx;
+      speakCurrentParagraph();
+    }
+
+    function cycleAudioSpeed() {
+      const speeds = [1.0, 1.05, 1.2, 1.5];
+      const curIdx = speeds.indexOf(state.audioBrief.speed);
+      state.audioBrief.speed = speeds[(curIdx + 1) % speeds.length];
+      const btn = document.getElementById('audio-speed-btn');
+      if (btn) btn.textContent = `${state.audioBrief.speed}x`;
+      if (state.audioBrief.isPlaying) {
+        speakCurrentParagraph();
+      }
+    }
+
+    function startAdversarialAutoPlay() {
+      if (state.adversarial.timer) clearInterval(state.adversarial.timer);
+      state.adversarial.isAutoPlaying = true;
+      state.adversarial.timer = setInterval(() => {
+        if (state.adversarial.currentRound < 4) {
+          state.adversarial.currentRound++;
+        } else {
+          state.adversarial.currentRound = 1;
+        }
+        renderActiveView();
+      }, 2400);
+    }
+
+    function stopAdversarialAutoPlay() {
+      state.adversarial.isAutoPlaying = false;
+      if (state.adversarial.timer) {
+        clearInterval(state.adversarial.timer);
+        state.adversarial.timer = null;
+      }
+    }
+
+    // =========================================================================
     // ROUTER & GLOBAL CONTROLS
     // =========================================================================
     function stopTimelinePlayback() {
@@ -1272,27 +1939,82 @@ declare const topojson: any;
         vp.querySelectorAll('[data-mitre-id]').forEach(b => b.addEventListener('click', () => { playTick(720); const m = DATA.mitre.find(x => x.id === b.getAttribute('data-mitre-id')); if (m) openInspector(`MITRE ${m.techId}`, m.techName, `<p style="color:var(--ink-2);">${m.desc}</p>`); }));
       } else if (state.pillar === 'ai') {
         vp.innerHTML = renderAiView();
-        patchWargameInPlace();
-        const bind = (id, key) => document.getElementById(id)?.addEventListener('input', e => {
-          state.wargame[key] = Number(e.target.value);
-          state.wargame.preset = 'Custom Scenario';
-          patchWargameInPlace(); // Zero-jank 120Hz in-place update!
+
+        const btnAdv = document.getElementById('btn-mode-adversarial');
+        const btnSens = document.getElementById('btn-mode-sensitivity');
+        btnAdv?.addEventListener('click', () => {
+          playTick(720);
+          state.wargameMode = 'adversarial';
+          renderActiveView();
         });
-        bind('wg-closure', 'closureDays');
-        bind('wg-cyber', 'cyberSeverity');
-        bind('wg-spr', 'sprRelease');
-        vp.querySelectorAll('[data-wg-preset]').forEach(b => b.addEventListener('click', () => {
-          playTick(740);
-          const p = b.getAttribute('data-wg-preset');
-          if (p === 'suez') state.wargame = { closureDays: 6, cyberSeverity: 10, sprRelease: 0, preset: '2021 Suez Blockage (6D)' };
-          if (p === 'redsea') state.wargame = { closureDays: 28, cyberSeverity: 25, sprRelease: 15, preset: '2024 Red Sea Rerouting' };
-          if (p === 'hormuz') state.wargame = { closureDays: 45, cyberSeverity: 65, sprRelease: 30, preset: 'Hormuz 45D + Volt Typhoon OT' };
-          if (p === 'extreme') state.wargame = { closureDays: 90, cyberSeverity: 92, sprRelease: 65, preset: '90D Dual-Strait Shock' };
-          document.getElementById('wg-closure').value = String(state.wargame.closureDays);
-          document.getElementById('wg-cyber').value = String(state.wargame.cyberSeverity);
-          document.getElementById('wg-spr').value = String(state.wargame.sprRelease);
+        btnSens?.addEventListener('click', () => {
+          playTick(720);
+          state.wargameMode = 'sensitivity';
+          renderActiveView();
+        });
+
+        if (state.wargameMode === 'adversarial') {
+          vp.querySelectorAll('[data-adv-preset]').forEach(b => b.addEventListener('click', () => {
+            playTick(700);
+            state.adversarial.preset = b.getAttribute('data-adv-preset') || 'Hormuz 45D + Volt Typhoon OT';
+            state.adversarial.currentRound = 1;
+            renderActiveView();
+          }));
+
+          vp.querySelectorAll('[data-adv-round]').forEach(b => b.addEventListener('click', () => {
+            playTick(740);
+            state.adversarial.currentRound = Number(b.getAttribute('data-adv-round'));
+            renderActiveView();
+          }));
+
+          document.getElementById('btn-adv-autoplay')?.addEventListener('click', () => {
+            playTick(720);
+            if (state.adversarial.isAutoPlaying) {
+              stopAdversarialAutoPlay();
+            } else {
+              startAdversarialAutoPlay();
+            }
+            renderActiveView();
+          });
+
+          document.getElementById('btn-adv-prev')?.addEventListener('click', () => {
+            playTick(680);
+            if (state.adversarial.currentRound > 1) {
+              state.adversarial.currentRound--;
+              renderActiveView();
+            }
+          });
+
+          document.getElementById('btn-adv-next')?.addEventListener('click', () => {
+            playTick(680);
+            if (state.adversarial.currentRound < 4) {
+              state.adversarial.currentRound++;
+              renderActiveView();
+            }
+          });
+        } else {
           patchWargameInPlace();
-        }));
+          const bind = (id: string, key: string) => document.getElementById(id)?.addEventListener('input', (e: any) => {
+            state.wargame[key] = Number(e.target.value);
+            state.wargame.preset = 'Custom Scenario';
+            patchWargameInPlace(); // Zero-jank 120Hz in-place update!
+          });
+          bind('wg-closure', 'closureDays');
+          bind('wg-cyber', 'cyberSeverity');
+          bind('wg-spr', 'sprRelease');
+          vp.querySelectorAll('[data-wg-preset]').forEach(b => b.addEventListener('click', () => {
+            playTick(740);
+            const p = b.getAttribute('data-wg-preset');
+            if (p === 'suez') state.wargame = { closureDays: 6, cyberSeverity: 10, sprRelease: 0, preset: '2021 Suez Blockage (6D)' };
+            if (p === 'redsea') state.wargame = { closureDays: 28, cyberSeverity: 25, sprRelease: 15, preset: '2024 Red Sea Rerouting' };
+            if (p === 'hormuz') state.wargame = { closureDays: 45, cyberSeverity: 65, sprRelease: 30, preset: 'Hormuz 45D + Volt Typhoon OT' };
+            if (p === 'extreme') state.wargame = { closureDays: 90, cyberSeverity: 92, sprRelease: 65, preset: '90D Dual-Strait Shock' };
+            (document.getElementById('wg-closure') as HTMLInputElement).value = String(state.wargame.closureDays);
+            (document.getElementById('wg-cyber') as HTMLInputElement).value = String(state.wargame.cyberSeverity);
+            (document.getElementById('wg-spr') as HTMLInputElement).value = String(state.wargame.sprRelease);
+            patchWargameInPlace();
+          }));
+        }
       } else if (state.pillar === 'graph') {
         vp.innerHTML = renderGraphView();
         mountKnowledgeGraph();
@@ -1304,8 +2026,8 @@ declare const topojson: any;
     // INIT
     // =========================================================================
     function updateThemeIcons() {
-      document.getElementById('theme-icon-sun').classList.toggle('hidden', !state.darkTheme);
-      document.getElementById('theme-icon-moon').classList.toggle('hidden', state.darkTheme);
+      document.getElementById('theme-icon-sun')?.classList.toggle('hidden', !state.darkTheme);
+      document.getElementById('theme-icon-moon')?.classList.toggle('hidden', state.darkTheme);
     }
 
     function startClocks() {
@@ -1323,25 +2045,41 @@ declare const topojson: any;
     document.querySelectorAll('[data-pillar]').forEach(btn => btn.addEventListener('click', () => switchPillar(btn.getAttribute('data-pillar'))));
     document.querySelectorAll('[data-pillar-tab]').forEach(btn => btn.addEventListener('click', () => switchPillar(btn.getAttribute('data-pillar-tab'))));
     document.querySelectorAll('[data-dock-pillar]').forEach(btn => btn.addEventListener('click', () => switchPillar(btn.getAttribute('data-dock-pillar'))));
-    document.getElementById('brand-home-btn').addEventListener('click', () => switchPillar('convergence'));
-    document.getElementById('open-palette-btn').addEventListener('click', openPalette);
-    document.getElementById('open-palette-rail').addEventListener('click', openPalette);
-    document.getElementById('close-palette-btn').addEventListener('click', closePalette);
-    document.getElementById('palette-modal').addEventListener('click', (e) => { if (e.target.id === 'palette-modal') closePalette(); });
-    document.getElementById('palette-input').addEventListener('input', (e) => renderPaletteResults(e.target.value));
-    document.getElementById('close-inspector-btn').addEventListener('click', closeInspector);
-    document.getElementById('inspector-backdrop').addEventListener('click', closeInspector);
-    document.getElementById('wallboard-btn').addEventListener('click', toggleWallboard);
-    document.getElementById('feed-health-btn').addEventListener('click', openFeedHealthDrawer);
-    document.getElementById('refresh-btn').addEventListener('click', () => { playTick(800); showToast('Telemetry synchronized'); });
-    document.getElementById('sound-toggle-btn').addEventListener('click', () => {
+    document.getElementById('brand-home-btn')?.addEventListener('click', () => switchPillar('convergence'));
+    document.getElementById('open-palette-btn')?.addEventListener('click', openPalette);
+    document.getElementById('open-palette-rail')?.addEventListener('click', openPalette);
+    document.getElementById('close-palette-btn')?.addEventListener('click', closePalette);
+    document.getElementById('palette-modal')?.addEventListener('click', (e: any) => { if (e.target.id === 'palette-modal') closePalette(); });
+    document.getElementById('palette-input')?.addEventListener('input', (e: any) => renderPaletteResults(e.target.value));
+    document.getElementById('close-inspector-btn')?.addEventListener('click', closeInspector);
+    document.getElementById('inspector-backdrop')?.addEventListener('click', closeInspector);
+    document.getElementById('wallboard-btn')?.addEventListener('click', toggleWallboard);
+    document.getElementById('feed-health-btn')?.addEventListener('click', openFeedHealthDrawer);
+    document.getElementById('refresh-btn')?.addEventListener('click', () => { playTick(800); showToast('Telemetry synchronized'); });
+
+    // Audio SITREP modal & controls
+    document.getElementById('audio-sitrep-btn')?.addEventListener('click', () => {
+      openAudioSitrepModal();
+      if (!state.audioBrief.isPlaying) {
+        speakCurrentParagraph();
+      }
+    });
+    document.getElementById('close-audio-modal-btn')?.addEventListener('click', closeAudioSitrepModal);
+    document.getElementById('audio-play-toggle')?.addEventListener('click', toggleAudioSitrep);
+    document.getElementById('audio-replay-btn')?.addEventListener('click', replayAudioSitrep);
+    document.getElementById('audio-speed-btn')?.addEventListener('click', cycleAudioSpeed);
+    document.getElementById('audio-player-modal')?.addEventListener('click', (e: any) => {
+      if (e.target.id === 'audio-player-modal') closeAudioSitrepModal();
+    });
+
+    document.getElementById('sound-toggle-btn')?.addEventListener('click', () => {
       state.soundEnabled = !state.soundEnabled;
-      document.getElementById('sound-icon-on').classList.toggle('hidden', !state.soundEnabled);
-      document.getElementById('sound-icon-off').classList.toggle('hidden', state.soundEnabled);
+      document.getElementById('sound-icon-on')?.classList.toggle('hidden', !state.soundEnabled);
+      document.getElementById('sound-icon-off')?.classList.toggle('hidden', state.soundEnabled);
       if (state.soundEnabled) playTick(880, 0.05);
       showToast(state.soundEnabled ? 'Tactile UI Audio Enabled' : 'Tactile UI Audio Muted');
     });
-    document.getElementById('theme-toggle-btn').addEventListener('click', () => {
+    document.getElementById('theme-toggle-btn')?.addEventListener('click', () => {
       playTick(620);
       state.darkTheme = !state.darkTheme;
       document.body.classList.toggle('dark-theme', state.darkTheme);
@@ -1354,12 +2092,24 @@ declare const topojson: any;
       if (e.key === 'Escape') {
         closePalette();
         closeInspector();
+        closeAudioSitrepModal();
         if (state.wallboard) toggleWallboard();
         return;
       }
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
       if (e.key === '/') { e.preventDefault(); openPalette(); }
       if (e.key.toLowerCase() === 'f') toggleWallboard();
+      if (e.key.toLowerCase() === 'p') {
+        e.preventDefault();
+        const m = document.getElementById('audio-player-modal');
+        if (m?.classList.contains('hidden')) {
+          openAudioSitrepModal();
+          toggleAudioSitrep();
+        } else {
+          toggleAudioSitrep();
+        }
+      }
+      if (e.key.toLowerCase() === 'w') switchPillar('ai');
       if (e.key === '1') switchPillar('convergence');
       if (e.key === '2') switchPillar('geopolitics');
       if (e.key === '3') switchPillar('macroeconomics');
@@ -1377,12 +2127,14 @@ declare const topojson: any;
 
     // Live Vercel / Rust API hydration (upgrades baseline snapshot automatically when keys are configured)
     async function hydrateLiveApis() {
-      const active = [];
+      const active: string[] = [];
       try {
-        const [macroRes, geoRes, cyberRes] = await Promise.all([
+        const [macroRes, geoRes, cyberRes, audioRes, wargameRes] = await Promise.all([
           fetch('/api/macro/all').catch(() => null),
           fetch('/api/geo/summary').catch(() => null),
-          fetch('/api/cyber/all').catch(() => null)
+          fetch('/api/cyber/all').catch(() => null),
+          fetch('/api/ai/audio-brief').catch(() => null),
+          fetch('/api/ai/wargame').catch(() => null)
         ]);
         if (macroRes && macroRes.ok) {
           const m = await macroRes.json();
@@ -1415,6 +2167,58 @@ declare const topojson: any;
               name: k.vulnerability_name, added: k.date_added, cvss: k.cvss_score || 9.0,
               sponsors: ['PRC', 'RUSSIAN', 'DPRK', 'IRAN'], status: k.active_exploitation_status
             }));
+          }
+        }
+        if (audioRes && audioRes.ok) {
+          const a = await audioRes.json();
+          if (a?.transcript_paragraphs?.length) {
+            DATA.audioScript.headline = a.headline;
+            DATA.audioScript.paragraphs = a.transcript_paragraphs;
+            active.push('VOICE SITREP');
+          }
+        }
+        if (wargameRes && wargameRes.ok) {
+          const wg = await wargameRes.json();
+          if (wg?.turns?.length) {
+            DATA.adversarialWargames[wg.scenario_name || 'Hormuz 45D + Volt Typhoon OT'] = {
+              scenarioId: wg.scenario_id,
+              scenarioName: wg.scenario_name || 'Hormuz 45D + Volt Typhoon OT',
+              initialThreatIndex: wg.initial_threat_index || 87,
+              peakThreatIndex: wg.peak_threat_index || 93,
+              finalEquilibriumIndex: wg.final_equilibrium_index || 72,
+              turns: wg.turns.map((t: any) => ({
+                round: t.round,
+                roundTitle: t.round_title,
+                redMove: {
+                  round: t.red_move.round,
+                  adversaryName: t.red_move.adversary_name,
+                  stateSponsor: t.red_move.state_sponsor,
+                  operationCodename: t.red_move.operation_codename,
+                  vectorType: t.red_move.vector_type,
+                  targetAsset: t.red_move.target_asset,
+                  signatureTtp: t.red_move.signature_ttp,
+                  tacticalAction: t.red_move.tactical_action,
+                  grossMarketShock: t.red_move.gross_market_shock,
+                  escalationScore: t.red_move.escalation_score
+                },
+                blueCounter: {
+                  round: t.blue_counter.round,
+                  defenseForce: t.blue_counter.defense_force,
+                  doctrineResponse: t.blue_counter.doctrine_response,
+                  operationalDirective: t.blue_counter.operational_directive,
+                  strategicBufferDeployed: t.blue_counter.strategic_buffer_deployed,
+                  containmentEfficiencyPct: t.blue_counter.containment_efficiency_pct,
+                  netResidualRisk: t.blue_counter.net_residual_risk
+                },
+                brentProjectedUsd: t.brent_projected_usd,
+                euGasStoragePct: t.eu_gas_storage_pct,
+                us10yYieldPct: t.us_10y_yield_pct,
+                threatIndexAfterContainment: t.threat_index_after_containment
+              })),
+              executiveTakeaway: wg.executive_takeaway,
+              fragilityRating: wg.fragility_rating
+            };
+            active.push('WAR-GAME C2');
           }
         }
         const lbl = document.getElementById('feed-status-label');

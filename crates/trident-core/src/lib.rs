@@ -193,6 +193,78 @@ pub struct AiSynthesisResponse {
     pub hardware_acceleration: HardwareAccelerationInfo,
 }
 
+// ==========================================
+// MODULE 1 & 2: AUDIO SITREP & WARGAME MODELS
+// ==========================================
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AudioSitrepScript {
+    pub script_id: String,
+    pub generated_at: DateTime<Utc>,
+    pub threat_convergence_index: u8,
+    pub headline: String,
+    pub transcript_paragraphs: Vec<String>,
+    pub estimated_duration_sec: u32,
+    pub recommended_voice_cadence: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RedCellMove {
+    pub round: u32,
+    pub adversary_name: String,
+    pub state_sponsor: String,
+    pub operation_codename: String,
+    pub vector_type: String,
+    pub target_asset: String,
+    pub signature_ttp: String,
+    pub tactical_action: String,
+    pub gross_market_shock: String,
+    pub escalation_score: u8,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct BlueCellCounter {
+    pub round: u32,
+    pub defense_force: String,
+    pub doctrine_response: String,
+    pub operational_directive: String,
+    pub strategic_buffer_deployed: String,
+    pub containment_efficiency_pct: u8,
+    pub net_residual_risk: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct WargameTurnState {
+    pub round: u32,
+    pub round_title: String,
+    pub red_move: RedCellMove,
+    pub blue_counter: BlueCellCounter,
+    pub brent_projected_usd: f64,
+    pub eu_gas_storage_pct: f64,
+    pub us_10y_yield_pct: f64,
+    pub threat_index_after_containment: u8,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct WargameSimulationReport {
+    pub simulation_id: String,
+    pub scenario_id: String,
+    pub scenario_name: String,
+    pub initial_threat_index: u8,
+    pub peak_threat_index: u8,
+    pub final_equilibrium_index: u8,
+    pub turns: Vec<WargameTurnState>,
+    pub executive_takeaway: String,
+    pub systemic_fragility_rating: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct WargameRunRequest {
+    pub scenario_preset: Option<String>,
+    pub custom_chokepoint_days: Option<u32>,
+    pub custom_cyber_severity: Option<u32>,
+}
+
 pub struct StateStorage {
     conn: rusqlite::Connection,
 }

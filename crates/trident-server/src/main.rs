@@ -10,8 +10,9 @@ use std::net::SocketAddr;
 use tower_http::cors::CorsLayer;
 use trident_ai::AiEngine;
 use trident_core::{
-    AiSynthesisRequest, AiSynthesisResponse, ConvergenceSignal, FocusPillar, GeoIncident,
-    HardwareAccelerationInfo, SignalSeverity, StrategicSitrep,
+    AiSynthesisRequest, AiSynthesisResponse, AudioSitrepScript, ConvergenceSignal, FocusPillar,
+    GeoIncident, HardwareAccelerationInfo, SignalSeverity, StrategicSitrep, WargameRunRequest,
+    WargameSimulationReport,
 };
 use trident_cyber::CyberEngine;
 use trident_macro::MacroEngine;
@@ -57,6 +58,8 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/ai/sitrep", get(get_sitrep))
         .route("/api/ai/synthesize", post(synthesize_ai))
         .route("/api/ai/hardware-status", get(get_hardware_status))
+        .route("/api/ai/audio-brief", get(get_audio_sitrep))
+        .route("/api/ai/wargame", get(get_default_wargame).post(run_wargame))
         .route("/api/maritime/ais", get(get_maritime_ais))
         .layer(cors);
 
@@ -211,6 +214,25 @@ async fn synthesize_ai(
 
 async fn get_hardware_status() -> Json<HardwareAccelerationInfo> {
     Json(AiEngine::get_hardware_info())
+}
+
+async fn get_audio_sitrep() -> Json<AudioSitrepScript> {
+    Json(AiEngine::generate_audio_sitrep_script())
+}
+
+async fn run_wargame(
+    Json(payload): Json<WargameRunRequest>,
+) -> Json<WargameSimulationReport> {
+    Json(AiEngine::run_adversarial_wargame(&payload))
+}
+
+async fn get_default_wargame() -> Json<WargameSimulationReport> {
+    let default_req = WargameRunRequest {
+        scenario_preset: Some("Hormuz 45D + Volt Typhoon OT".to_string()),
+        custom_chokepoint_days: Some(45),
+        custom_cyber_severity: Some(65),
+    };
+    Json(AiEngine::run_adversarial_wargame(&default_req))
 }
 
 async fn get_maritime_ais() -> Json<Vec<ChokepointAisSnapshot>> {

@@ -1,0 +1,35 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Trident Terminal",
+  "version": "3.0.0",
+  "identifier": "com.trident.terminal.c2",
+  "build": {
+    "beforeDevCommand": "npm --prefix ../frontend run dev",
+    "devUrl": "http://localhost:3200",
+    "beforeBuildCommand": "npm --prefix ../frontend run build",
+    "frontendDist": "../frontend/dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "TRIDENT // Strategic C2 Terminal",
+        "width": 1440,
+        "height": 900,
+        "minWidth": 1024,
+        "minHeight": 680,
+        "resizable": true,
+        "titleBarStyle": "Overlay"
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["app", "dmg"],
+    "macOS": {
+      "minimumSystemVersion": "12.0"
+    }
+  }
+}

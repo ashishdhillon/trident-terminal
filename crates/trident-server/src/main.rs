@@ -16,6 +16,9 @@ use trident_core::{
 use trident_cyber::CyberEngine;
 use trident_macro::MacroEngine;
 
+pub mod ais;
+use ais::{AisChokepointTracker, ChokepointAisSnapshot};
+
 #[derive(Serialize)]
 struct SystemStatus {
     service: &'static str,
@@ -54,6 +57,7 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/ai/sitrep", get(get_sitrep))
         .route("/api/ai/synthesize", post(synthesize_ai))
         .route("/api/ai/hardware-status", get(get_hardware_status))
+        .route("/api/maritime/ais", get(get_maritime_ais))
         .layer(cors);
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 3100));
@@ -207,4 +211,9 @@ async fn synthesize_ai(
 
 async fn get_hardware_status() -> Json<HardwareAccelerationInfo> {
     Json(AiEngine::get_hardware_info())
+}
+
+async fn get_maritime_ais() -> Json<Vec<ChokepointAisSnapshot>> {
+    let tracker = AisChokepointTracker::new();
+    Json(tracker.snapshot())
 }

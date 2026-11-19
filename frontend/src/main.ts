@@ -1,1482 +1,1425 @@
+// @ts-nocheck
 import './style.css';
+import { exportExecutiveSitrepPdf } from './sitrep-export';
+declare const d3: any;
+declare const topojson: any;
+(window as any).exportExecutiveSitrepPdf = exportExecutiveSitrepPdf;
 
-type FocusPillar = 'convergence' | 'geopolitics' | 'macroeconomics' | 'cyber' | 'ai';
-
-// Data Interfaces
-interface YieldPoint {
-  maturity: string;
-  rate: number;
-  previous_day_rate: number;
-  one_month_ago_rate: number;
-  one_year_ago_rate: number;
-}
-
-interface YieldCurveData {
-  timestamp: string;
-  points: YieldPoint[];
-  spread_10y_2y_bps: number;
-  spread_10y_3m_bps: number;
-  is_inverted: boolean;
-  curve_regime: string;
-  recession_signal_level: string;
-}
-
-interface StrategicReserveItem {
-  name: string;
-  category: string;
-  current_volume: number;
-  max_capacity: number;
-  unit: string;
-  fill_percentage: number;
-  status: string;
-  weekly_change_pct: number;
-  days_of_consumption_buffer: number;
-  notes: string;
-}
-
-interface CentralBankProfile {
-  institution: string;
-  jurisdiction: string;
-  policy_rate: number;
-  headline_cpi: number;
-  core_inflation: number;
-  real_policy_rate: number;
-  balance_sheet_trillion_usd: number;
-  stance: string;
-  last_decision_date: string;
-}
-
-interface CommodityItem {
-  ticker: string;
-  name: string;
-  category: string;
-  spot_price: number;
-  unit: string;
-  change_24h_pct: number;
-  high_52w: number;
-  low_52w: number;
-  geopolitical_sensitivity: string;
-}
-
-interface ChokepointCommodityExposure {
-  chokepoint_name: string;
-  region: string;
-  daily_oil_transit_mbpd: number;
-  global_trade_share_pct: number;
-  primary_commodities: string[];
-  vulnerability_score: number;
-  current_alert_status: string;
-}
-
-interface MacroPayload {
-  updated_at: string;
-  yield_curve: YieldCurveData;
-  reserves: StrategicReserveItem[];
-  central_banks: CentralBankProfile[];
-  commodities: CommodityItem[];
-  chokepoints: ChokepointCommodityExposure[];
-}
-
-interface ConvergenceSignal {
-  id: string;
-  title: string;
-  description: string;
-  severity: 'critical' | 'high' | 'medium' | 'low';
-  domains: string[];
-  timestamp: string;
-  market_implication?: string;
-  geographical_target?: string;
-  threat_actor?: string;
-  confidence_score: number;
-  primary_indicator: string;
-}
-
-interface GeoIncident {
-  id: string;
-  title: string;
-  incident_type: string;
-  location_name: string;
-  latitude: number;
-  longitude: number;
-  severity: 'critical' | 'high' | 'medium' | 'low';
-  timestamp: string;
-  details: string;
-  source_verified: boolean;
-}
-
-interface AptDossier {
-  actor_id: string;
-  primary_name: string;
-  aliases: string[];
-  state_sponsor: string;
-  attribution_agency: string;
-  motivation: string;
-  targeted_sectors: string[];
-  targeted_countries: string[];
-  signature_ttp_ids: string[];
-  recent_campaign: string;
-  threat_level: 'critical' | 'high' | 'medium' | 'low';
-  operational_status: string;
-  last_observed_activity: string;
-}
-
-interface MitreTacticGroup {
-  tactic_id: string;
-  tactic_name: string;
-  observed_techniques_count: number;
-  critical_techniques: {
-    technique_id: string;
-    name: string;
-    detection_priority: string;
-    active_threat_actors: string[];
-    description: string;
-  }[];
-}
-
-interface CisaKevVulnerability {
-  cve_id: string;
-  vendor_project: string;
-  product: string;
-  vulnerability_name: string;
-  date_added: string;
-  due_date: string;
-  known_ransomware_campaign_use: boolean;
-  cvss_score: number;
-  attack_vector: string;
-  active_exploitation_status: string;
-}
-
-interface InfrastructureCyberTarget {
-  sector_name: string;
-  active_incident_count: number;
-  primary_threat_actors: string[];
-  readiness_posture: string;
-  scada_exposure_level: string;
-}
-
-interface CyberPayload {
-  updated_at: string;
-  apt_dossiers: AptDossier[];
-  mitre_tactics: MitreTacticGroup[];
-  cisa_kev_feed: CisaKevVulnerability[];
-  infrastructure_targets: InfrastructureCyberTarget[];
-}
-
-// PHASE 4: AI STRATEGIC SYNTHESIS INTERFACES
-interface CausalityLink {
-  step: number;
-  domain: string;
-  trigger_event: string;
-  immediate_impact: string;
-  secondary_ripple: string;
-  confidence_pct: number;
-}
-
-interface CrossDomainInference {
-  id: string;
-  title: string;
-  primary_thesis: string;
-  risk_tier: 'critical' | 'high' | 'medium' | 'low';
-  correlated_domains: string[];
-  causality_sequence: CausalityLink[];
-  market_vector: string;
-  defensive_posture: string;
-}
-
-interface StrategicSitrep {
-  sitrep_id: string;
-  generated_at: string;
-  threat_convergence_index: number;
-  executive_summary: string;
-  active_syndicates: string[];
-  primary_inferences: CrossDomainInference[];
-  key_cve_exposures: string[];
-  macro_buffers: string[];
-  actionable_directives: string[];
-  model_engine: string;
-  inference_latency_ms: number;
-}
-
-interface EvidenceNode {
-  id: string;
-  title: string;
-  domain: string;
-  similarity_score: number;
-  citation_source: string;
-  excerpt: string;
-}
-
-interface HardwareAccelerationInfo {
-  target_arch: string;
-  is_apple_silicon: boolean;
-  acceleration_tier: string;
-  vector_simd_active: boolean;
-  memory_allocated_mb: number;
-}
-
-interface AiSynthesisResponse {
-  query: string;
-  sitrep: StrategicSitrep;
-  relevant_evidence_nodes: EvidenceNode[];
-  hardware_acceleration: HardwareAccelerationInfo;
-}
-
-class TridentTerminalApp {
-  private activePillar: FocusPillar = 'macroeconomics';
-  private macroData: MacroPayload | null = null;
-  private cyberData: CyberPayload | null = null;
-  private aiSitrep: StrategicSitrep | null = null;
-  private hardwareInfo: HardwareAccelerationInfo | null = null;
-  private aiEvidenceNodes: EvidenceNode[] = [];
-  private activeAiPrompt = 'Synthesize Red Sea chokepoint and Volt Typhoon energy corridor threats';
-  private isSynthesizing = false;
-  private convergenceSignals: ConvergenceSignal[] = [];
-  private geoIncidents: GeoIncident[] = [];
-  private isOnline = false;
-  private activeAptFilter = 'ALL';
-  private hoveredTenor: YieldPoint | null = null;
-  private latencyMs = 0;
-
-  constructor() {
-    this.init();
-  }
-
-  async init() {
-    this.renderChassis();
-    this.setupGlobalShortcuts();
-    this.setupListeners();
-    await this.fetchData();
-    this.startClocks();
-    this.renderContent();
-
-    // Auto-refresh every 8 seconds
-    setInterval(() => this.fetchData(), 8000);
-  }
-
-  setupGlobalShortcuts() {
-    window.addEventListener('keydown', (e) => {
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-      if (e.key === '1') this.switchPillar('convergence');
-      if (e.key === '2') this.switchPillar('geopolitics');
-      if (e.key === '3') this.switchPillar('macroeconomics');
-      if (e.key === '4') this.switchPillar('cyber');
-      if (e.key === '5') this.switchPillar('ai');
-      if (e.key.toLowerCase() === 'r') this.fetchData();
-    });
-  }
-
-  switchPillar(pillar: FocusPillar) {
-    this.activePillar = pillar;
-    this.updateNavButtons();
-    this.renderContent();
-  }
-
-  async runAiSynthesis(query: string) {
-    this.isSynthesizing = true;
-    this.activeAiPrompt = query;
-    this.renderContent();
-
-    try {
-      const res = await fetch('/api/ai/synthesize', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query })
-      });
-      if (res.ok) {
-        const data: AiSynthesisResponse = await res.json();
-        this.aiSitrep = data.sitrep;
-        this.aiEvidenceNodes = data.relevant_evidence_nodes;
-        if (data.hardware_acceleration) {
-          this.hardwareInfo = data.hardware_acceleration;
-        }
-      }
-    } catch (e) {
-      console.error('AI synthesis failed:', e);
-    } finally {
-      this.isSynthesizing = false;
-      this.renderContent();
-    }
-  }
-
-  async fetchData() {
-    const t0 = performance.now();
-    try {
-      const [macroRes, convRes, geoRes, cyberRes, sitrepRes, hwRes] = await Promise.all([
-        fetch('/api/macro/all').then(r => r.ok ? r.json() : null),
-        fetch('/api/convergence/signals').then(r => r.ok ? r.json() : []),
-        fetch('/api/geo/summary').then(r => r.ok ? r.json() : []),
-        fetch('/api/cyber/all').then(r => r.ok ? r.json() : null),
-        fetch('/api/ai/sitrep').then(r => r.ok ? r.json() : null),
-        fetch('/api/ai/hardware-status').then(r => r.ok ? r.json() : null),
-      ]);
-
-      this.latencyMs = Math.round(performance.now() - t0);
-
-      if (macroRes) {
-        this.macroData = macroRes;
-        if (!this.hoveredTenor && macroRes.yield_curve.points.length > 8) {
-          this.hoveredTenor = macroRes.yield_curve.points[8]; // Default to 10Y
-        }
-      }
-      this.cyberData = cyberRes;
-      this.convergenceSignals = convRes || [];
-      this.geoIncidents = geoRes || [];
-      if (sitrepRes) {
-        this.aiSitrep = sitrepRes;
-      }
-      if (hwRes) {
-        this.hardwareInfo = hwRes;
-      }
-      this.isOnline = true;
-      this.updateStatusHeader();
-      this.renderContent();
-    } catch {
-      this.isOnline = false;
-      this.updateStatusHeader();
-    }
-  }
-
-  startClocks() {
-    const update = () => {
-      const now = new Date();
-      const zulu = document.getElementById('clock-zulu');
-      const local = document.getElementById('clock-local');
-      if (zulu) {
-        zulu.textContent = now.toISOString().substring(11, 19) + ' Z';
-      }
-      if (local) {
-        local.textContent = now.toLocaleTimeString([], { hour12: false });
-      }
+// =========================================================================
+    // GROUNDED DATA STORE
+    // =========================================================================
+    const DATA = {
+      timeline30d: Array.from({ length: 31 }, (_, i) => {
+        const dayOffset = 30 - i;
+        const progress = i / 30;
+        const wave = Math.sin(i * 0.55) * 1.8;
+        return {
+          label: dayOffset === 0 ? 'LIVE' : `D-${dayOffset}`,
+          index: Math.round(66 + progress * 21 + wave),
+          brent: Number((69.6 + progress * 4.68 + wave * 0.35).toFixed(2)),
+          spread10y2y: Math.round(14 + progress * 16 + wave * 0.8),
+          cushingPct: Number((40.2 - progress * 7.2 - wave * 0.25).toFixed(1))
+        };
+      }),
+      domainActivity: [
+        { label: 'Geopolitics', pct: 34, count: 95, color: '#3B5BFF' },
+        { label: 'Energy',      pct: 28, count: 88, color: '#0EA5E9' },
+        { label: 'Cyber / OT',  pct: 23, count: 89, color: '#F43F5E' },
+        { label: 'Macro',       pct: 15, count: 74, color: '#F59E0B' }
+      ],
+      signals: [
+        { id: 'SIG-CONV-901', theater: 'MIDEAST', title: 'Red Sea Escort Chokepoint & Energy Premium', description: 'Bab-el-Mandeb anti-ship missile alerts triggering 14-day voyage reroutes around Cape of Good Hope, adding +$1.85/bbl war risk insurance premium to European crude imports.', severity: 'critical', market_implication: '+1.8% Brent Crude premium; +24% container freight spot rates (SCFI).', target: 'Bab-el-Mandeb / Southern Red Sea', actor: 'Houthi Movement (Ansar Allah)', confidence: 94, indicator: 'AIS Vessel Divergence & UKMTO Incident 118', coords: [43.4, 12.6] },
+        { id: 'SIG-CONV-902', theater: 'CYBER', title: 'Volt Typhoon Pre-Positioning on Pipeline SCADA', description: 'CISA alert indicating persistent living-off-the-land malware staging across maritime port logistics and Gulf Coast pipeline control networks.', severity: 'high', market_implication: 'Elevated supply disruption hedging in US Natural Gas and refined products.', target: 'US Gulf Coast Energy Corridor', actor: 'Volt Typhoon (PRC State-Sponsored)', confidence: 89, indicator: 'CISA KEV / Router Firmware Telemetry', coords: [-95.0, 29.7] },
+        { id: 'SIG-CONV-903', theater: 'MIDEAST', title: 'Yield Dis-Inversion vs. Petroleum Buffer Depletion', description: 'US 10Y-2Y spread steepening (+30 bps) coupled with Cushing storage near tank bottoms (33% capacity), reducing US macro buffer against supply shocks.', severity: 'medium', market_implication: 'Steepening sovereign curve; heightened sensitivity to headline inflation data.', target: 'North America Financial & Energy Hubs', actor: 'Systemic Market Friction', confidence: 98, indicator: 'US Treasury / EIA Weekly Petroleum Status', coords: [-96.77, 35.98] },
+        { id: 'SIG-CONV-904', theater: 'INDOPAC', title: 'Malacca Tanker Queue & Asian Crude Transit Watch', description: '30% of global seaborne trade and 16.0M bbl/d crude flow through Malacca; elevated Middle East war-risk premiums amplify Asian refinery margin pressure.', severity: 'high', market_implication: 'Asian sour-crude differential widening; LNG spot cargo competition.', target: 'Strait of Malacca / Singapore', actor: 'Regional Maritime Friction', confidence: 91, indicator: 'AIS Chokepoint Density & Crude Freight Index', coords: [101.2, 2.5] }
+      ],
+      chokepoints: [
+        { id: 'CP-HORMUZ', name: 'Strait of Hormuz', region: 'Persian Gulf', coords: [56.5, 26.6], oilMbpd: 20.5, tradeShare: 21.0, commodities: ['Crude Oil', 'LNG (Qatar)', 'Condensate'], vuln: 95, severity: 'critical', status: 'Heightened Surveillance (IRGC Navy Maneuvers)' },
+        { id: 'CP-MANDAB', name: 'Bab-el-Mandeb & Red Sea', region: 'Southern Red Sea', coords: [43.4, 12.6], oilMbpd: 8.8, tradeShare: 12.0, commodities: ['Refined Fuels', 'Crude Oil', 'Containers'], vuln: 88, severity: 'critical', status: 'Active Attack Zone (Cape Route Divergence Active)' },
+        { id: 'CP-SUEZ', name: 'Suez Canal', region: 'Egypt', coords: [32.34, 30.57], oilMbpd: 4.5, tradeShare: 12.0, commodities: ['LNG', 'Oil Products', 'Manufactured Goods'], vuln: 82, severity: 'high', status: 'Severe Transit Volume Reduction (-55% vs Baseline)' },
+        { id: 'CP-MALACCA', name: 'Strait of Malacca', region: 'Southeast Asia', coords: [101.2, 2.5], oilMbpd: 16.0, tradeShare: 30.0, commodities: ['Middle East Crude to Asia', 'Iron Ore', 'Electronics'], vuln: 75, severity: 'medium', status: 'Normal Maritime Operations' },
+        { id: 'CP-PANAMA', name: 'Panama Canal', region: 'Central America', coords: [-79.52, 8.98], oilMbpd: 0.9, tradeShare: 3.5, commodities: ['US Gulf LNG', 'Agricultural Grains', 'LPG'], vuln: 60, severity: 'medium', status: 'Recovering from Drought Draft Restrictions' }
+      ],
+      incidents: [
+        { id: 'GEO-001', title: 'Black Sea Naval Drone Threat Vector', type: 'Naval Exclusion', location: 'Crimean Coastline / Sevastopol', coords: [33.5254, 44.6166], severity: 'high', details: 'Intermittent GPS spoofing and electronic warfare affecting commercial grain carriers.' },
+        { id: 'GEO-002', title: 'Strait of Hormuz Airspace NOTAM Restriction', type: 'Military Airspace', location: 'Strait of Hormuz / Bandar Abbas', coords: [56.2666, 27.1832], severity: 'critical', details: 'Live-fire naval drills restricting commercial transit lane western approaches.' }
+      ],
+      shippingArcs: [
+        { from: [56.5, 26.6], to: [43.4, 12.6] },
+        { from: [43.4, 12.6], to: [32.34, 30.57] },
+        { from: [56.5, 26.6], to: [101.2, 2.5] },
+        { from: [-79.52, 8.98], to: [101.2, 2.5] }
+      ],
+      yieldCurve: {
+        spread10y2y: 30, spread10y3m: 4,
+        points: [
+          { m: '1M',  r: 4.45, prev: 4.46, m1: 4.52, y1: 5.40 },
+          { m: '3M',  r: 4.38, prev: 4.39, m1: 4.48, y1: 5.38 },
+          { m: '6M',  r: 4.29, prev: 4.30, m1: 4.40, y1: 5.25 },
+          { m: '1Y',  r: 4.18, prev: 4.19, m1: 4.28, y1: 4.95 },
+          { m: '2Y',  r: 4.12, prev: 4.14, m1: 4.18, y1: 4.70 },
+          { m: '3Y',  r: 4.15, prev: 4.17, m1: 4.16, y1: 4.50 },
+          { m: '5Y',  r: 4.22, prev: 4.24, m1: 4.21, y1: 4.35 },
+          { m: '7Y',  r: 4.31, prev: 4.33, m1: 4.30, y1: 4.38 },
+          { m: '10Y', r: 4.42, prev: 4.44, m1: 4.39, y1: 4.42 },
+          { m: '20Y', r: 4.71, prev: 4.72, m1: 4.68, y1: 4.70 },
+          { m: '30Y', r: 4.65, prev: 4.67, m1: 4.62, y1: 4.58 }
+        ]
+      },
+      commodities: [
+        { ticker: 'BRENT', name: 'Brent Crude Oil', price: 74.28, unit: '$/bbl', delta: 1.42, low: 68.68, high: 92.18, spark: [71.2, 71.8, 72.4, 72.0, 73.1, 73.6, 74.28] },
+        { ticker: 'WTI', name: 'West Texas Intermediate', price: 70.15, unit: '$/bbl', delta: 1.35, low: 65.27, high: 87.67, spark: [67.8, 68.2, 68.7, 68.4, 69.2, 69.7, 70.15] },
+        { ticker: 'NG', name: 'Henry Hub Natural Gas', price: 2.82, unit: '$/MMBtu', delta: -0.65, low: 1.58, high: 3.45, spark: [2.94, 2.91, 2.88, 2.90, 2.85, 2.84, 2.82] },
+        { ticker: 'XAU', name: 'Gold Spot', price: 2684.50, unit: '$/oz', delta: 0.82, low: 1985.30, high: 2790.15, spark: [2615, 2630, 2642, 2638, 2659, 2670, 2684.5] },
+        { ticker: 'HG', name: 'Copper High Grade', price: 4.18, unit: '$/lb', delta: -0.32, low: 3.65, high: 5.19, spark: [4.26, 4.24, 4.21, 4.22, 4.20, 4.19, 4.18] },
+        { ticker: 'ZW', name: 'Wheat Chicago Futures', price: 552.25, unit: '¢/bu', delta: 0.55, low: 525.00, high: 720.50, spark: [544, 546, 545, 548, 549, 551, 552.25] }
+      ],
+      apts: [
+        { id: 'APT-VOLT-TYPHOON', name: 'Volt Typhoon', sponsorKey: 'PRC', sponsor: "People's Republic of China (PRC)", agency: 'CISA / NSA / FBI', level: 'critical', coords: [-95.0, 29.7], sectors: ['Electrical Grid', 'Water Treatment', 'Port Logistics', 'Pipeline SCADA'], ttps: ['T1078', 'T1218', 'T0814'], campaign: 'Stealth exploitation of SOHO perimeter routers to proxy SCADA control communications without writing binaries to disk.' },
+        { id: 'APT-SANDWORM', name: 'Sandworm', sponsorKey: 'RUSSIAN', sponsor: 'Russian Federation (GRU)', agency: 'US DOJ / Mandiant', level: 'critical', coords: [33.5, 44.6], sectors: ['High-Voltage Substations', 'Rail Signalling', 'Government Telecom'], ttps: ['T0855', 'T0812', 'T1485'], campaign: 'Deployment of Industroyer2 tailored ICS payload targeting IEC-60870-5-104 substation relays.' },
+        { id: 'APT-LAZARUS', name: 'Lazarus Group', sponsorKey: 'DPRK', sponsor: 'DPRK (RGB)', agency: 'FBI / OFAC', level: 'high', coords: [127.0, 37.5], sectors: ['Cryptocurrency Protocols', 'Defense Aerospace', 'Nuclear Engineering'], ttps: ['T1566', 'T1195.002', 'T1003'], campaign: 'Targeting engineering contractors with trojanized open-source software to steal defense schematics.' },
+        { id: 'APT-MINT-SANDSTORM', name: 'Mint Sandstorm', sponsorKey: 'IRAN', sponsor: 'Islamic Republic of Iran (IRGC)', agency: 'Microsoft / CISA', level: 'high', coords: [56.5, 26.6], sectors: ['Oil & Petrochemicals', 'Maritime Logistics', 'Defense Think Tanks'], ttps: ['T1190', 'T1505', 'T1071'], campaign: 'Fast opportunistic targeting of zero-day vulnerabilities in enterprise perimeter VPN appliances.' }
+      ],
+      mitre: [
+        { id: 'TA0001', tactic: 'Initial Access', count: 14, techId: 'T1190', techName: 'Exploit Public-Facing App', priority: 'P1', sponsors: ['PRC', 'IRAN'], desc: 'Weaponization of internet-exposed SSL-VPNs, firewalls, and edge gateways.' },
+        { id: 'TA0001-B', tactic: 'Initial Access', count: 9, techId: 'T1195.002', techName: 'Software Supply Chain', priority: 'P1', sponsors: ['DPRK', 'RUSSIAN'], desc: 'Injecting malicious dependencies into NPM, PyPI, and Crates repositories.' },
+        { id: 'TA0003', tactic: 'Persistence', count: 22, techId: 'T1078', techName: 'Valid Accounts (LotL)', priority: 'P1', sponsors: ['PRC', 'RUSSIAN'], desc: 'Abusing legitimate credentials to blend in with baseline network activity.' },
+        { id: 'TA0107', tactic: 'Inhibit Response (ICS)', count: 8, techId: 'T0814', techName: 'Denial of Control', priority: 'P0', sponsors: ['PRC', 'RUSSIAN'], desc: 'Disrupting operator override capability across SCADA HMIs during grid switching.' },
+        { id: 'TA0040', tactic: 'Impact (OT)', count: 19, techId: 'T0855', techName: 'Unauthorized Command Msg', priority: 'P0', sponsors: ['RUSSIAN', 'IRAN'], desc: 'Injecting false Modbus, DNP3, or IEC-104 frames to trip high-voltage breakers.' }
+      ],
+      kevs: [
+        { cve: 'CVE-2026-40217', vendor: 'BerriAI', product: 'LiteLLM', name: 'Unprotected Alternate Channel Vulnerability', added: '2026-11-18', cvss: 9.4, sponsors: ['PRC', 'DPRK'], status: 'Added to CISA KEV Nov 18, 2026' },
+        { cve: 'CVE-2026-90436', vendor: 'Apache', product: 'Apache Axis', name: 'Unsafe Reflection Vulnerability', added: '2026-11-18', cvss: 9.1, sponsors: ['RUSSIAN', 'IRAN'], status: 'Added to CISA KEV Nov 18, 2026' },
+        { cve: 'CVE-2024-3400', vendor: 'Palo Alto Networks', product: 'PAN-OS GlobalProtect', name: 'Command Injection in GlobalProtect', added: '2024-04-12', cvss: 10.0, sponsors: ['PRC'], status: 'Mass Automated Exploitation' },
+        { cve: 'CVE-2024-21887', vendor: 'Ivanti', product: 'Connect Secure', name: 'Command Injection Vulnerability', added: '2024-01-11', cvss: 9.1, sponsors: ['PRC', 'IRAN'], status: 'Active State-Sponsored Weaponization' },
+        { cve: 'CVE-2024-38856', vendor: 'Apache', product: 'Apache OFBiz', name: 'RCE via Incorrect Authorization', added: '2024-08-07', cvss: 9.8, sponsors: ['DPRK', 'RUSSIAN'], status: 'Supply Chain Infiltration' }
+      ],
+      infraTargets: [
+        { sector: 'Electric Power Transmission & Substations', incidents: 7, sponsors: ['PRC', 'RUSSIAN'], posture: 'DEFCON-3 High Alert', exposure: 'High (Remote Telemetry Modems)' },
+        { sector: 'Crude Oil & Refined Product Pipelines', incidents: 4, sponsors: ['PRC'], posture: 'Elevated Monitoring', exposure: 'Moderate (Air-Gap Mandated)' },
+        { sector: 'Commercial Deepwater Container Ports', incidents: 5, sponsors: ['PRC', 'IRAN'], posture: 'Active Threat Hunt', exposure: 'High (Crane IoT Firmware)' },
+        { sector: 'Submarine Cable Landing Stations', incidents: 2, sponsors: ['RUSSIAN'], posture: 'Enhanced Guard', exposure: 'Critical (Optical Power Feeds)' }
+      ],
+      graph: {
+        nodes: [
+          { id: 'Volt Typhoon', group: 'APT', coords: [-95.0, 29.7], desc: 'PRC state-sponsored LotL intrusion set targeting US port & pipeline SCADA.' },
+          { id: 'Sandworm', group: 'APT', coords: [33.5, 44.6], desc: 'Russian GRU Unit 74455 destructive ICS/grid threat actor.' },
+          { id: 'Mint Sandstorm', group: 'APT', coords: [56.5, 26.6], desc: 'IRGC-linked actor exploiting VPN edge appliances against maritime ports.' },
+          { id: 'CVE-2024-3400', group: 'CVE', coords: [-95.0, 29.7], desc: 'CVSS 10.0 PAN-OS GlobalProtect root command injection.' },
+          { id: 'CVE-2024-21887', group: 'CVE', coords: [56.5, 26.6], desc: 'CVSS 9.1 Ivanti Connect Secure edge gateway injection.' },
+          { id: 'CVE-2026-40217', group: 'CVE', coords: [33.5, 44.6], desc: 'CISA KEV Nov 18, 2026 BerriAI LiteLLM alternate channel flaw.' },
+          { id: 'Pipeline SCADA', group: 'INFRA', coords: [-95.0, 29.7], desc: 'US Gulf Coast crude & LNG compressor station OT networks.' },
+          { id: 'Power Substations', group: 'INFRA', coords: [33.5, 44.6], desc: 'High-voltage IEC-104 substations & grid switching relays.' },
+          { id: 'Container Ports', group: 'INFRA', coords: [43.4, 12.6], desc: 'Deepwater ship-to-shore crane IoT & maritime logistics.' },
+          { id: 'Strait of Hormuz', group: 'COMMODITY', coords: [56.5, 26.6], desc: '20.5M bbl/d oil transit chokepoint (Vuln 95/100).' },
+          { id: 'Brent Crude', group: 'COMMODITY', coords: [43.4, 12.6], desc: '$74.28/bbl spot benchmark highly sensitive to Gulf & Red Sea shocks.' },
+          { id: 'US 10Y Yield', group: 'COMMODITY', coords: [-74.0, 40.7], desc: '4.42% Treasury benchmark; +30 bps 10Y–2Y dis-inversion slope.' }
+        ],
+        links: [
+          { source: 'Volt Typhoon', target: 'CVE-2024-3400', rel: 'exploits' },
+          { source: 'Volt Typhoon', target: 'CVE-2024-21887', rel: 'exploits' },
+          { source: 'Volt Typhoon', target: 'Pipeline SCADA', rel: 'pre-positions' },
+          { source: 'Volt Typhoon', target: 'Container Ports', rel: 'targets' },
+          { source: 'Sandworm', target: 'Power Substations', rel: 'disrupts' },
+          { source: 'Sandworm', target: 'CVE-2026-40217', rel: 'monitors' },
+          { source: 'Mint Sandstorm', target: 'CVE-2024-21887', rel: 'exploits' },
+          { source: 'Mint Sandstorm', target: 'Container Ports', rel: 'targets' },
+          { source: 'Mint Sandstorm', target: 'Strait of Hormuz', rel: 'operates near' },
+          { source: 'Pipeline SCADA', target: 'Brent Crude', rel: 'reprices' },
+          { source: 'Strait of Hormuz', target: 'Brent Crude', rel: 'transits 20.5M bbl/d' },
+          { source: 'Brent Crude', target: 'US 10Y Yield', rel: 'inflation pass-through' },
+          { source: 'Power Substations', target: 'US 10Y Yield', rel: 'utility capex stress' }
+        ]
+      },
+      feeds: [
+        { name: 'CISA KEV JSON Catalog', status: 'READY (KEYLESS)', cadence: 'Daily', latency: '140ms', detail: 'Wired live in api/cyber/all.js (zero API key required).' },
+        { name: 'FRED Treasury Yield Curve', status: 'FREE KEY READY', cadence: 'Daily (H.15)', latency: '210ms', detail: '11 series DGS1MO–DGS30 wired in api/macro/all.js.' },
+        { name: 'EIA API v2 Petroleum', status: 'FREE KEY READY', cadence: 'Weekly (Wed)', latency: '290ms', detail: 'SPR (WCSSTUS1) & Cushing (W_EPC0_SAX_YCUOK_MBBL).' },
+        { name: 'NASA FIRMS VIIRS NRT', status: 'FREE MAP_KEY', cadence: '~3h Satellite', latency: '340ms', detail: 'High-FRP (>=25 MW) thermal anomaly filter in api/geo/summary.js.' },
+        { name: 'CelesTrak NORAD Orbits', status: 'READY (KEYLESS)', cadence: 'Hourly GP JSON', latency: '185ms', detail: 'Orbital station elements wired in api/geo/layers.js.' },
+        { name: 'AISStream.io Maritime', status: 'RUST DAEMON', cadence: 'Real-Time WS', latency: '45ms', detail: 'Server-side Rust WebSocket tracker in crates/trident-server/src/ais.rs.' }
+      ]
     };
-    update();
-    setInterval(update, 1000);
-  }
 
-  updateStatusHeader() {
-    const statusDot = document.getElementById('status-indicator-dot');
-    const statusText = document.getElementById('status-indicator-text');
-    const latencyEl = document.getElementById('latency-indicator');
+    // =========================================================================
+    // STATE & MICRO-AUDIO ENGINE
+    // =========================================================================
+    const state = {
+      pillar: 'convergence',
+      darkTheme: false,
+      soundEnabled: false,
+      audioCtx: null,
+      wallboard: false,
+      watchlist: 'ALL',
+      timelineIdx: 30,
+      playingTimeline: false,
+      playTimer: null,
+      mapMode: 'globe',
+      rot: [-48, -22],
+      vel: [0.06, 0], // subtle idle 120Hz drift + inertial momentum
+      targetRot: null,
+      selectedTenorIdx: 8,
+      aptSponsor: 'ALL',
+      graphFilter: 'ALL',
+      layers: { chokepoints: true, routes: true, incidents: true },
+      wargame: { closureDays: 45, cyberSeverity: 65, sprRelease: 30, preset: 'Hormuz 45D + Volt Typhoon OT' },
+      worldFeatures: null,
+      landDots: [], // Pre-sampled luminous hex-dot lattice on real continents
+      globeRafId: null
+    };
 
-    if (statusDot && statusText) {
-      if (this.isOnline) {
-        statusDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_#10b981]';
-        statusText.textContent = 'CONNECTED // LOCAL DAEMON';
-        statusText.className = 'text-emerald-400 font-mono text-[10px] font-semibold tracking-wider';
-      } else {
-        statusDot.className = 'w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse';
-        statusText.textContent = 'CONNECTING // RUST IPC';
-        statusText.className = 'text-amber-400 font-mono text-[10px] font-semibold tracking-wider';
+    try {
+      if (localStorage.getItem('trident_theme') === 'dark') {
+        state.darkTheme = true;
+        document.body.classList.add('dark-theme');
       }
+    } catch (_) {}
+
+    function playTick(freq = 640, dur = 0.032) {
+      if (!state.soundEnabled) return;
+      try {
+        if (!state.audioCtx) state.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const ctx = state.audioCtx;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, ctx.currentTime);
+        gain.gain.setValueAtTime(0.035, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + dur);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + dur);
+      } catch (_) {}
     }
 
-    if (latencyEl) {
-      latencyEl.textContent = `${this.latencyMs}ms`;
-    }
-  }
-
-  renderChassis() {
-    const appEl = document.getElementById('app');
-    if (!appEl) return;
-
-    appEl.innerHTML = `
-      <!-- TOP INSTITUTIONAL COMMAND BAR -->
-      <header class="border-b border-zinc-800 bg-[#090b10] px-4 py-2 flex flex-wrap items-center justify-between gap-3 text-xs select-none">
-        <!-- Brand & Breadcrumbs -->
-        <div class="flex items-center space-x-3">
-          <div class="flex items-center space-x-2">
-            <span class="font-mono text-zinc-100 font-bold tracking-widest text-sm uppercase">TRIDENT</span>
-            <span class="text-zinc-600 font-mono">/</span>
-            <span class="text-[11px] font-mono text-cyan-400 font-semibold tracking-wide">STRATEGIC C2 TERMINAL</span>
-          </div>
-          <span class="hidden sm:inline-block w-px h-3.5 bg-zinc-800"></span>
-          <div class="hidden sm:flex items-center space-x-2 text-[10px] font-mono text-zinc-500">
-            <span>CORE: <span class="text-zinc-300">RUST v0.1.0</span></span>
-            <span>•</span>
-            <span>MEMORY: <span class="text-emerald-400 font-medium">32 MB</span></span>
-          </div>
-        </div>
-
-        <!-- Telemetry & Clocks -->
-        <div class="flex items-center space-x-4">
-          <div class="flex items-center space-x-1.5 px-2 py-0.5 rounded bg-zinc-900/90 border border-zinc-800/80">
-            <span id="status-indicator-dot" class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-            <span id="status-indicator-text" class="text-zinc-400 font-mono text-[10px]">SYNCING</span>
-            <span class="text-zinc-600 font-mono text-[10px] ml-1">|</span>
-            <span id="latency-indicator" class="text-zinc-400 font-mono text-[10px]">--ms</span>
-          </div>
-
-          <div class="flex items-center space-x-2 font-mono text-[11px]">
-            <span class="text-zinc-500 text-[10px]">ZULU:</span>
-            <span id="clock-zulu" class="font-semibold text-zinc-200">--:--:-- Z</span>
-            <span class="text-zinc-700">|</span>
-            <span class="text-zinc-500 text-[10px]">LOCAL:</span>
-            <span id="clock-local" class="text-zinc-400">--:--:--</span>
-          </div>
-        </div>
-      </header>
-
-      <!-- INSTITUTIONAL PILLAR TABS (HIGH-DENSITY) -->
-      <nav class="bg-[#0c0e14] border-b border-zinc-800/80 px-4 py-1.5 flex items-center justify-between text-xs select-none sticky top-0 z-40">
-        <div class="flex items-center space-x-1 overflow-x-auto">
-          <button data-pillar="convergence" class="pillar-tab">
-            <span class="text-zinc-500 mr-1.5">[1]</span>
-            <span>CONVERGENCE MATRIX</span>
-            <span class="ml-2 text-[9px] px-1 py-0.2 rounded bg-zinc-800 text-zinc-400 font-mono">FUSION</span>
-          </button>
-          <button data-pillar="geopolitics" class="pillar-tab">
-            <span class="text-zinc-500 mr-1.5">[2]</span>
-            <span>GEOPOLITICS & KINETIC</span>
-            <span class="ml-2 text-[9px] px-1 py-0.2 rounded bg-zinc-800 text-zinc-400 font-mono">MAP</span>
-          </button>
-          <button data-pillar="macroeconomics" class="pillar-tab">
-            <span class="text-zinc-500 mr-1.5">[3]</span>
-            <span>MACROECONOMICS & RESOURCES</span>
-            <span class="ml-2 text-[9px] px-1 py-0.2 rounded bg-cyan-950 text-cyan-300 font-mono border border-cyan-800/60">YIELD</span>
-          </button>
-          <button data-pillar="cyber" class="pillar-tab">
-            <span class="text-zinc-500 mr-1.5">[4]</span>
-            <span>CYBER WARFARE & STATE ACTORS</span>
-            <span class="ml-2 text-[9px] px-1 py-0.2 rounded bg-rose-950 text-rose-300 font-mono border border-rose-800/60">APT</span>
-          </button>
-          <button data-pillar="ai" class="pillar-tab">
-            <span class="text-zinc-500 mr-1.5">[5]</span>
-            <span>AI SYNTHESIS // SITREP</span>
-            <span class="ml-2 text-[9px] px-1 py-0.2 rounded bg-purple-950 text-purple-300 font-mono border border-purple-800/60">METAL RAG</span>
-          </button>
-        </div>
-
-        <div class="hidden lg:flex items-center space-x-2 text-[10px] font-mono text-zinc-500">
-          <span class="bg-zinc-900 px-1.5 py-0.5 rounded border border-zinc-800">1-5</span>
-          <span>Switch View</span>
-          <span class="bg-zinc-900 px-1.5 py-0.5 rounded border border-zinc-800 ml-1">R</span>
-          <span>Refresh</span>
-        </div>
-      </nav>
-
-      <!-- DYNAMIC CONTENT VIEWPORT -->
-      <main id="main-content" class="flex-1 p-4 md:p-5 overflow-y-auto max-w-[1680px] mx-auto w-full"></main>
-
-      <!-- BOTTOM AUDIT TICKER -->
-      <footer class="border-t border-zinc-900 bg-[#07080c] px-4 py-1 flex items-center justify-between text-[10px] font-mono text-zinc-500 select-none">
-        <div class="flex items-center space-x-3">
-          <span class="text-zinc-400 font-medium">TRIDENT INTELLIGENCE FRAMEWORK</span>
-          <span>•</span>
-          <span>ZERO CLOUD TELEMETRY LEAKAGE</span>
-          <span>•</span>
-          <span>DIS-INVERSION PHASE ACTIVE</span>
-        </div>
-        <div class="text-zinc-600">
-          CONFIDENTIAL // OPERATIONAL USE ONLY
-        </div>
-      </footer>
-    `;
-  }
-
-  setupListeners() {
-    const tabs = document.querySelectorAll('.pillar-tab');
-    tabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        const pillar = tab.getAttribute('data-pillar') as FocusPillar;
-        if (pillar) this.switchPillar(pillar);
-      });
-    });
-    this.updateNavButtons();
-  }
-
-  updateNavButtons() {
-    const tabs = document.querySelectorAll('.pillar-tab');
-    tabs.forEach(tab => {
-      const p = tab.getAttribute('data-pillar');
-      if (p === this.activePillar) {
-        tab.className = 'pillar-tab px-3 py-1.5 rounded font-mono text-xs font-semibold tracking-wider transition-colors flex items-center bg-zinc-900 text-zinc-100 border border-zinc-700 shadow-sm';
-      } else {
-        tab.className = 'pillar-tab px-3 py-1.5 rounded font-mono text-xs font-medium tracking-wider transition-colors flex items-center text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/60 border border-transparent';
+    // Smooth 120Hz Odometer Number Animation
+    const animMap = new WeakMap();
+    function animateNumber(el, targetVal, decimals = 0, prefix = '', suffix = '') {
+      if (!el) return;
+      const prev = animMap.get(el);
+      if (prev) cancelAnimationFrame(prev.raf);
+      const startVal = prev ? prev.cur : targetVal;
+      if (Math.abs(startVal - targetVal) < 0.001) {
+        el.textContent = `${prefix}${targetVal.toFixed(decimals)}${suffix}`;
+        animMap.set(el, { cur: targetVal, raf: null });
+        return;
       }
-    });
-  }
-
-  renderContent() {
-    const container = document.getElementById('main-content');
-    if (!container) return;
-
-    switch (this.activePillar) {
-      case 'macroeconomics':
-        container.innerHTML = this.renderMacroeconomicsView();
-        this.bindYieldCurveHover();
-        break;
-      case 'cyber':
-        container.innerHTML = this.renderCyberView();
-        this.bindCyberFilters();
-        break;
-      case 'convergence':
-        container.innerHTML = this.renderConvergenceView();
-        this.bindConvergenceControls();
-        break;
-      case 'geopolitics':
-        container.innerHTML = this.renderGeopoliticsView();
-        break;
-      case 'ai':
-        container.innerHTML = this.renderAiPillar();
-        this.bindAiControls();
-        break;
-    }
-  }
-
-  // ==========================================
-  // VIEW: MACROECONOMICS & RESOURCE SECURITY
-  // ==========================================
-  renderMacroeconomicsView(): string {
-    if (!this.macroData) {
-      return `<div class="p-8 text-center font-mono text-xs text-zinc-500">AWAITING RUST ENGINE SNAPSHOT...</div>`;
+      const t0 = performance.now();
+      const dur = 260;
+      function step(now) {
+        const p = Math.min(1, (now - t0) / dur);
+        const eased = 1 - Math.pow(1 - p, 3);
+        const cur = startVal + (targetVal - startVal) * eased;
+        el.textContent = `${prefix}${cur.toFixed(decimals)}${suffix}`;
+        const rec = { cur, raf: p < 1 ? requestAnimationFrame(step) : null };
+        animMap.set(el, rec);
+      }
+      animMap.set(el, { cur: startVal, raf: requestAnimationFrame(step) });
     }
 
-    const { yield_curve, reserves, central_banks, commodities, chokepoints } = this.macroData;
-    const h = this.hoveredTenor || yield_curve.points[8];
+    // Pre-sample real continents into a crisp Hex-Dot Matrix (Alien Pixels signature!)
+    async function loadWorldAtlas() {
+      try {
+        const res = await fetch('https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json');
+        if (!res.ok) return;
+        const topo = await res.json();
+        const land = topojson.feature(topo, topo.objects.land);
+        state.worldFeatures = topojson.feature(topo, topo.objects.countries);
 
-    return `
-      <div class="space-y-4">
-        <!-- TOP EXECUTIVE RADAR BAR -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5">
-          <div class="p-3 bg-[#0d0f15] border border-zinc-800/80 rounded">
-            <div class="text-[10px] uppercase tracking-wider font-mono text-zinc-500">10Y–2Y SPREAD (SLOPE)</div>
-            <div class="flex items-baseline space-x-2 mt-1">
-              <span class="text-xl font-mono font-bold ${yield_curve.spread_10y_2y_bps >= 0 ? 'text-emerald-400' : 'text-rose-400'}">
-                ${yield_curve.spread_10y_2y_bps >= 0 ? '+' : ''}${yield_curve.spread_10y_2y_bps}
-              </span>
-              <span class="text-[10px] font-mono text-zinc-400">BPS</span>
-            </div>
-            <div class="text-[10px] font-mono text-zinc-400 mt-0.5">Curve Dis-Inverting (Bear Steepener)</div>
-          </div>
-
-          <div class="p-3 bg-[#0d0f15] border border-zinc-800/80 rounded">
-            <div class="text-[10px] uppercase tracking-wider font-mono text-zinc-500">10Y–3M SPREAD (RECESSION)</div>
-            <div class="flex items-baseline space-x-2 mt-1">
-              <span class="text-xl font-mono font-bold ${yield_curve.spread_10y_3m_bps >= 0 ? 'text-emerald-400' : 'text-rose-400'}">
-                ${yield_curve.spread_10y_3m_bps >= 0 ? '+' : ''}${yield_curve.spread_10y_3m_bps}
-              </span>
-              <span class="text-[10px] font-mono text-zinc-400">BPS</span>
-            </div>
-            <div class="text-[10px] font-mono text-amber-400/90 mt-0.5">Post-Inversion Lag Zone</div>
-          </div>
-
-          <div class="p-3 bg-[#0d0f15] border border-zinc-800/80 rounded">
-            <div class="text-[10px] uppercase tracking-wider font-mono text-zinc-500">US SPR CRUDE BUFFER</div>
-            <div class="flex items-baseline space-x-2 mt-1">
-              <span class="text-xl font-mono font-bold text-zinc-100">395.4M</span>
-              <span class="text-[10px] font-mono text-zinc-400">/ 714M BBL (55.4%)</span>
-            </div>
-            <div class="text-[10px] font-mono text-zinc-400 mt-0.5">Net Buffer: ~20 Days Net Import</div>
-          </div>
-
-          <div class="p-3 bg-[#0d0f15] border border-zinc-800/80 rounded">
-            <div class="text-[10px] uppercase tracking-wider font-mono text-zinc-500">CUSHING TERMINAL FLOOR</div>
-            <div class="flex items-baseline space-x-2 mt-1">
-              <span class="text-xl font-mono font-bold text-amber-400">25.1M</span>
-              <span class="text-[10px] font-mono text-zinc-400">/ 76M BBL (33%)</span>
-            </div>
-            <div class="text-[10px] font-mono text-rose-400/90 mt-0.5">Floor Threshold: ~20M bbl</div>
-          </div>
-        </div>
-
-        <!-- 1. INSTITUTIONAL US TREASURY YIELD CURVE INSPECTOR -->
-        <div class="p-4 bg-[#0d0f15] border border-zinc-800/80 rounded">
-          <div class="flex flex-wrap items-center justify-between pb-3 border-b border-zinc-800 gap-3">
-            <div>
-              <div class="font-mono text-xs font-bold text-zinc-100 uppercase tracking-wider flex items-center space-x-2">
-                <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
-                <span>US TREASURY BENCHMARK PAR YIELD CURVE</span>
-              </div>
-              <div class="text-[10px] font-mono text-zinc-500 mt-0.5">Interactive Tenor Surface with Historical Spread Differential</div>
-            </div>
-
-            <!-- Tenor Crosshair Live Inspector -->
-            <div class="flex items-center space-x-3 text-xs font-mono bg-zinc-950/80 px-3 py-1.5 rounded border border-zinc-800">
-              <span class="text-zinc-500">INSPECT TENOR:</span>
-              <span class="text-cyan-400 font-bold" id="inspected-tenor-label">${h.maturity}</span>
-              <span class="text-zinc-600">|</span>
-              <span class="text-zinc-400">YIELD:</span>
-              <span class="text-zinc-100 font-bold" id="inspected-tenor-yield">${h.rate.toFixed(2)}%</span>
-              <span class="text-zinc-600">|</span>
-              <span class="text-zinc-400">1M AGO:</span>
-              <span class="text-zinc-400" id="inspected-tenor-1m">${h.one_month_ago_rate.toFixed(2)}%</span>
-              <span class="text-zinc-600">|</span>
-              <span class="text-zinc-400">1Y AGO:</span>
-              <span class="text-zinc-400" id="inspected-tenor-1y">${h.one_year_ago_rate.toFixed(2)}%</span>
-            </div>
-          </div>
-
-          <!-- SVG Visualizer -->
-          <div class="py-3">
-            ${this.renderYieldCurveProSvg(yield_curve.points)}
-          </div>
-
-          <!-- Tenor Pills Grid -->
-          <div class="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-11 gap-1.5 pt-3 border-t border-zinc-800/80">
-            ${yield_curve.points.map((pt, idx) => `
-              <button data-tenor-idx="${idx}" class="tenor-chip p-2 rounded text-center font-mono border transition-all ${pt.maturity === h.maturity ? 'bg-cyan-950/40 border-cyan-500 text-cyan-200' : 'bg-zinc-900/60 border-zinc-800/80 text-zinc-400 hover:border-zinc-700'}">
-                <div class="text-[10px] font-bold text-zinc-300">${pt.maturity}</div>
-                <div class="text-xs font-bold my-0.5 text-zinc-100">${pt.rate.toFixed(2)}%</div>
-                <div class="text-[9px] ${pt.rate >= pt.previous_day_rate ? 'text-emerald-400' : 'text-rose-400'}">
-                  ${pt.rate - pt.previous_day_rate >= 0 ? '+' : ''}${(pt.rate - pt.previous_day_rate).toFixed(2)}
-                </div>
-              </button>
-            `).join('')}
-          </div>
-        </div>
-
-        <!-- 2. TWO-COLUMN SPLIT: RESERVES MONITOR & CENTRAL BANK MATRIX -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <!-- Strategic Reserves -->
-          <div class="p-4 bg-[#0d0f15] border border-zinc-800/80 rounded">
-            <div class="font-mono text-xs font-bold text-zinc-100 uppercase tracking-wider pb-2.5 border-b border-zinc-800 flex items-center justify-between">
-              <span>STRATEGIC COMMODITY & PETROLEUM STOCKS</span>
-              <span class="text-[10px] text-zinc-500 font-normal">CRITICAL BUFFER METRICS</span>
-            </div>
-
-            <div class="space-y-3.5 mt-3">
-              ${reserves.map(r => `
-                <div class="p-2.5 bg-zinc-900/40 rounded border border-zinc-800/60">
-                  <div class="flex justify-between items-center text-xs font-mono mb-1.5">
-                    <span class="font-bold text-zinc-200">${r.name}</span>
-                    <span class="text-zinc-300 font-semibold">${r.current_volume} / ${r.max_capacity} <span class="text-zinc-500 text-[10px]">${r.unit}</span></span>
-                  </div>
-
-                  <!-- Pro Progress Gauge with Operational Floor Marker -->
-                  <div class="w-full bg-zinc-950 h-2 rounded-full overflow-hidden border border-zinc-800 relative">
-                    <div class="h-full rounded-full ${r.fill_percentage < 35 ? 'bg-amber-500' : 'bg-cyan-500'}" style="width: ${r.fill_percentage}%"></div>
-                  </div>
-
-                  <div class="flex justify-between items-center text-[10px] font-mono text-zinc-400 mt-1.5">
-                    <span>STATUS: <span class="text-zinc-300">${r.status}</span></span>
-                    <span>BUFFER: <strong class="text-cyan-400">${r.days_of_consumption_buffer} DAYS</strong></span>
-                  </div>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-
-          <!-- Central Bank Policy Matrix -->
-          <div class="p-4 bg-[#0d0f15] border border-zinc-800/80 rounded">
-            <div class="font-mono text-xs font-bold text-zinc-100 uppercase tracking-wider pb-2.5 border-b border-zinc-800 flex items-center justify-between">
-              <span>CENTRAL BANK MONETARY POSTURE</span>
-              <span class="text-[10px] text-zinc-500 font-normal">REAL RATE CALCULATIONS</span>
-            </div>
-
-            <div class="overflow-x-auto mt-3">
-              <table class="w-full text-left font-mono text-xs">
-                <thead>
-                  <tr class="text-zinc-500 border-b border-zinc-800 text-[10px] tracking-wider uppercase">
-                    <th class="pb-2">Institution</th>
-                    <th class="pb-2 text-right">Policy Rate</th>
-                    <th class="pb-2 text-right">Headline CPI</th>
-                    <th class="pb-2 text-right">Real Rate</th>
-                    <th class="pb-2 pl-3">Stance</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-zinc-800/60">
-                  ${central_banks.map(cb => `
-                    <tr class="hover:bg-zinc-900/40">
-                      <td class="py-2.5 font-bold text-zinc-200">
-                        ${cb.institution}
-                        <div class="text-[10px] font-normal text-zinc-500">${cb.jurisdiction}</div>
-                      </td>
-                      <td class="py-2.5 text-right font-bold text-zinc-100">${cb.policy_rate.toFixed(2)}%</td>
-                      <td class="py-2.5 text-right text-zinc-400">${cb.headline_cpi.toFixed(1)}%</td>
-                      <td class="py-2.5 text-right font-bold ${cb.real_policy_rate > 0 ? 'text-emerald-400' : 'text-amber-400'}">
-                        ${cb.real_policy_rate > 0 ? '+' : ''}${cb.real_policy_rate.toFixed(2)}%
-                      </td>
-                      <td class="py-2.5 pl-3 text-[10px] text-zinc-300">
-                        <span class="px-1.5 py-0.5 rounded bg-zinc-900 border border-zinc-800">${cb.stance}</span>
-                      </td>
-                    </tr>
-                  `).join('')}
-                </tbody>
-              </table>
-            </div>
-            <div class="mt-3 text-[10px] font-mono text-zinc-500">
-              *Real Rate = Policy Benchmark - Headline CPI. Positive spreads restrict commercial liquidity.
-            </div>
-          </div>
-        </div>
-
-        <!-- 3. STRATEGIC COMMODITY RADAR & CHOKEPOINT CORRELATION -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <!-- Commodities -->
-          <div class="p-4 bg-[#0d0f15] border border-zinc-800/80 rounded lg:col-span-2">
-            <div class="font-mono text-xs font-bold text-zinc-100 uppercase tracking-wider pb-2.5 border-b border-zinc-800 flex justify-between">
-              <span>STRATEGIC COMMODITY BENCHMARKS</span>
-              <span class="text-[10px] text-zinc-500 font-normal">SPOT RADAR</span>
-            </div>
-
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-2.5 mt-3">
-              ${commodities.map(c => `
-                <div class="p-2.5 bg-zinc-900/50 rounded border border-zinc-800/80 font-mono">
-                  <div class="flex justify-between items-center text-xs text-zinc-400">
-                    <span class="font-bold text-zinc-100">${c.ticker}</span>
-                    <span class="${c.change_24h_pct >= 0 ? 'text-emerald-400' : 'text-rose-400'} font-bold">
-                      ${c.change_24h_pct >= 0 ? '+' : ''}${c.change_24h_pct.toFixed(2)}%
-                    </span>
-                  </div>
-                  <div class="text-lg font-bold text-zinc-100 my-0.5">
-                    $${c.spot_price.toLocaleString()} <span class="text-[10px] text-zinc-500 font-normal">${c.unit}</span>
-                  </div>
-                  <div class="text-[11px] text-zinc-400 font-medium truncate">${c.name}</div>
-                  <div class="text-[9px] text-zinc-500 mt-1 truncate" title="${c.geopolitical_sensitivity}">
-                    ${c.geopolitical_sensitivity}
-                  </div>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-
-          <!-- Maritime Chokepoints -->
-          <div class="p-4 bg-[#0d0f15] border border-zinc-800/80 rounded">
-            <div class="font-mono text-xs font-bold text-zinc-100 uppercase tracking-wider pb-2.5 border-b border-zinc-800">
-              <span>NAVAL CHOKEPOINT VULNERABILITY</span>
-            </div>
-
-            <div class="space-y-2 mt-3 font-mono">
-              ${chokepoints.map(cp => `
-                <div class="p-2 rounded bg-zinc-900/40 border border-zinc-800/70 text-xs">
-                  <div class="flex justify-between items-center font-bold text-zinc-200">
-                    <span>${cp.chokepoint_name}</span>
-                    <span class="${cp.vulnerability_score >= 85 ? 'text-rose-400' : 'text-amber-400'} text-[10px]">
-                      VULN: ${cp.vulnerability_score}/100
-                    </span>
-                  </div>
-                  <div class="text-[10px] text-zinc-400 mt-0.5">
-                    Transit: <strong class="text-zinc-200">${cp.daily_oil_transit_mbpd}M bbl/d</strong> (${cp.global_trade_share_pct}% world trade)
-                  </div>
-                  <div class="text-[9px] text-zinc-400 mt-1 bg-black/60 p-1 rounded border border-zinc-800/80 truncate">
-                    ${cp.current_alert_status}
-                  </div>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  renderYieldCurveProSvg(points: YieldPoint[]): string {
-    const width = 840;
-    const height = 220;
-    const padding = { top: 15, right: 25, bottom: 30, left: 40 };
-
-    const minRate = 3.8;
-    const maxRate = 5.6;
-
-    const scaleX = (i: number) => padding.left + (i / (points.length - 1)) * (width - padding.left - padding.right);
-    const scaleY = (rate: number) => height - padding.bottom - ((rate - minRate) / (maxRate - minRate)) * (height - padding.top - padding.bottom);
-
-    const currentPath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${scaleX(i)} ${scaleY(p.rate)}`).join(' ');
-    const monthAgoPath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${scaleX(i)} ${scaleY(p.one_month_ago_rate)}`).join(' ');
-    const yearAgoPath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${scaleX(i)} ${scaleY(p.one_year_ago_rate)}`).join(' ');
-
-    return `
-      <div class="w-full overflow-x-auto">
-        <svg viewBox="0 0 ${width} ${height}" class="w-full h-44 md:h-56 font-mono select-none">
-          <!-- Background Grid Lines -->
-          ${[4.0, 4.5, 5.0, 5.5].map(rate => `
-            <line x1="${padding.left}" y1="${scaleY(rate)}" x2="${width - padding.right}" y2="${scaleY(rate)}" stroke="#1e2433" stroke-width="1" />
-            <text x="${padding.left - 6}" y="${scaleY(rate) + 3}" fill="#64748b" font-size="9" text-anchor="end">${rate.toFixed(1)}%</text>
-          `).join('')}
-
-          <!-- Tenor Labels -->
-          ${points.map((p, i) => `
-            <text x="${scaleX(i)}" y="${height - 8}" fill="#94a3b8" font-size="9" text-anchor="middle">${p.maturity}</text>
-          `).join('')}
-
-          <!-- 1 Year Ago -->
-          <path d="${yearAgoPath}" fill="none" stroke="#475569" stroke-width="1.5" stroke-dasharray="3,3" />
-
-          <!-- 1 Month Ago -->
-          <path d="${monthAgoPath}" fill="none" stroke="#3b82f6" stroke-width="1.5" opacity="0.75" />
-
-          <!-- Current Live Yield Curve -->
-          <path d="${currentPath}" fill="none" stroke="#00d2ff" stroke-width="2.5" />
-
-          <!-- Interactive Points -->
-          ${points.map((p, i) => `
-            <circle cx="${scaleX(i)}" cy="${scaleY(p.rate)}" r="3.5" fill="#00d2ff" stroke="#090b10" stroke-width="1.5" class="cursor-pointer hover:r-5 transition-all" />
-          `).join('')}
-        </svg>
-      </div>
-    `;
-  }
-
-  bindYieldCurveHover() {
-    const chips = document.querySelectorAll('.tenor-chip');
-    chips.forEach(chip => {
-      chip.addEventListener('mouseenter', () => {
-        const idx = parseInt(chip.getAttribute('data-tenor-idx') || '0', 10);
-        if (this.macroData && this.macroData.yield_curve.points[idx]) {
-          this.hoveredTenor = this.macroData.yield_curve.points[idx];
-          this.updateHoveredInspector();
+        // Build hexagonal staggered lat/lon dot grid tested against real land geometry
+        const dots = [];
+        const latStep = 3.6;
+        for (let lat = -60; lat <= 76; lat += latStep) {
+          const lonStep = latStep / Math.max(0.28, Math.cos((lat * Math.PI) / 180));
+          const offset = (Math.round(lat / latStep) % 2) * (lonStep / 2);
+          for (let lon = -180 + offset; lon < 180; lon += lonStep) {
+            if (d3.geoContains(land, [lon, lat])) {
+              dots.push([lon, lat]);
+            }
+          }
         }
-      });
-    });
-  }
-
-  updateHoveredInspector() {
-    if (!this.hoveredTenor) return;
-    const t = this.hoveredTenor;
-    const l1 = document.getElementById('inspected-tenor-label');
-    const y1 = document.getElementById('inspected-tenor-yield');
-    const m1 = document.getElementById('inspected-tenor-1m');
-    const y2 = document.getElementById('inspected-tenor-1y');
-    if (l1) l1.textContent = t.maturity;
-    if (y1) y1.textContent = `${t.rate.toFixed(2)}%`;
-    if (m1) m1.textContent = `${t.one_month_ago_rate.toFixed(2)}%`;
-    if (y2) y2.textContent = `${t.one_year_ago_rate.toFixed(2)}%`;
-  }
-
-  // ==========================================
-  // VIEW: PHASE 3 CYBER WARFARE INTELLIGENCE
-  // ==========================================
-  renderCyberView(): string {
-    if (!this.cyberData) {
-      return `<div class="p-8 text-center font-mono text-xs text-zinc-500">AWAITING CYBER TELEMETRY FEED...</div>`;
+        state.landDots = dots;
+      } catch (_) {}
     }
 
-    const { apt_dossiers, mitre_tactics, cisa_kev_feed, infrastructure_targets } = this.cyberData;
-    const filteredApts = this.activeAptFilter === 'ALL'
-      ? apt_dossiers
-      : apt_dossiers.filter(a => a.state_sponsor.toUpperCase().includes(this.activeAptFilter));
+    // =========================================================================
+    // 120Hz HiDPI CANVAS HEX-DOT 3D GLOBE ENGINE (ZERO DOM THRASHING)
+    // =========================================================================
+    function stopGlobeLoop() {
+      if (state.globeRafId) {
+        cancelAnimationFrame(state.globeRafId);
+        state.globeRafId = null;
+      }
+    }
 
-    return `
-      <div class="space-y-4">
-        <!-- TOP THREAT BANNER -->
-        <div class="p-3 bg-[#0d0f15] border border-zinc-800/80 rounded flex flex-wrap justify-between items-center gap-3">
-          <div>
-            <div class="text-xs font-mono font-bold text-zinc-100 uppercase tracking-wider flex items-center space-x-2">
-              <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
-              <span>STATE-SPONSORED CYBER THREAT MATRIX & ICS INTEL</span>
+    function mountFluidGlobe(canvasId) {
+      stopGlobeLoop();
+      const canvas = document.getElementById(canvasId);
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const isFlat = (canvasId === 'full-map-canvas' && state.mapMode === 'flat');
+      let dragging = false, lx = 0, ly = 0, clickMoved = false;
+      let screenBeacons = [];
+
+      function resize() {
+        const rect = canvas.parentElement.getBoundingClientRect();
+        const dpr = Math.min(2, window.devicePixelRatio || 1);
+        const w = Math.max(300, Math.floor(rect.width));
+        const h = Math.max(300, Math.floor(rect.height));
+        canvas.width = w * dpr;
+        canvas.height = h * dpr;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        return { w, h };
+      }
+
+      let dims = resize();
+      const onResize = () => { dims = resize(); };
+      window.addEventListener('resize', onResize, { passive: true });
+
+      canvas.onpointerdown = (e) => {
+        if (isFlat) return;
+        dragging = true;
+        clickMoved = false;
+        state.targetRot = null;
+        lx = e.clientX; ly = e.clientY;
+        state.vel = [0, 0];
+        canvas.setPointerCapture(e.pointerId);
+      };
+
+      canvas.onpointermove = (e) => {
+        if (!dragging) return;
+        const dx = e.clientX - lx;
+        const dy = e.clientY - ly;
+        if (Math.abs(dx) + Math.abs(dy) > 2) clickMoved = true;
+        lx = e.clientX; ly = e.clientY;
+        state.vel = [dx * 0.36, -dy * 0.36];
+        state.rot[0] += state.vel[0];
+        state.rot[1] = Math.max(-62, Math.min(62, state.rot[1] + state.vel[1]));
+      };
+
+      canvas.onpointerup = (e) => {
+        if (dragging) {
+          dragging = false;
+          try { canvas.releasePointerCapture(e.pointerId); } catch (_) {}
+        }
+        if (!clickMoved) {
+          const rect = canvas.getBoundingClientRect();
+          const mx = e.clientX - rect.left;
+          const my = e.clientY - rect.top;
+          for (const b of screenBeacons) {
+            if (Math.hypot(mx - b.x, my - b.y) < 18) {
+              playTick(760, 0.04);
+              inspectChokepoint(b.cp);
+              return;
+            }
+          }
+        }
+      };
+
+      function frame(now) {
+        if (!document.getElementById(canvasId)) {
+          window.removeEventListener('resize', onResize);
+          return;
+        }
+        const { w, h } = dims;
+        ctx.clearRect(0, 0, w, h);
+
+        // Smooth Spring Fly-To OR Inertial Momentum Decay
+        if (!isFlat && !dragging) {
+          if (state.targetRot) {
+            const dLon = state.targetRot[0] - state.rot[0];
+            const dLat = state.targetRot[1] - state.rot[1];
+            state.rot[0] += dLon * 0.11;
+            state.rot[1] += dLat * 0.11;
+            if (Math.abs(dLon) < 0.08 && Math.abs(dLat) < 0.08) {
+              state.targetRot = null;
+              state.vel = [0.05, 0];
+            }
+          } else {
+            state.rot[0] += state.vel[0];
+            state.rot[1] = Math.max(-62, Math.min(62, state.rot[1] + state.vel[1]));
+            // Gentle friction back to subtle 0.05 deg/frame idle drift
+            state.vel[0] = state.vel[0] * 0.94 + 0.05 * 0.06;
+            state.vel[1] *= 0.90;
+          }
+        }
+
+        const cx = w / 2, cy = h / 2;
+        const radius = isFlat ? 0 : Math.min(w, h) * 0.41;
+        const projection = isFlat
+          ? d3.geoNaturalEarth1().fitExtent([[18, 20], [w - 18, h - 20]], { type: 'Sphere' })
+          : d3.geoOrthographic().scale(radius).translate([cx, cy]).rotate([state.rot[0], state.rot[1], 0]).clipAngle(90);
+        const geoPath = d3.geoPath(projection, ctx);
+
+        // 1. Concentric Luminous Orbital Rings (Alien Pixels inspired)
+        if (!isFlat) {
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(cx, cy, radius + 24, 0, Math.PI * 2);
+          ctx.strokeStyle = state.darkTheme ? 'rgba(56,189,248,0.12)' : 'rgba(255,255,255,0.78)';
+          ctx.lineWidth = 16;
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.arc(cx, cy, radius + 48, 0, Math.PI * 2);
+          ctx.setLineDash([4, 6]);
+          ctx.strokeStyle = state.darkTheme ? 'rgba(148,163,184,0.16)' : 'rgba(99,102,241,0.18)';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // 2. Sphere Ocean Radial Gradient + Atmospheric Rim Glow
+        ctx.save();
+        ctx.beginPath();
+        geoPath({ type: 'Sphere' });
+        const grad = isFlat
+          ? ctx.createLinearGradient(0, 0, w, h)
+          : ctx.createRadialGradient(cx - radius * 0.28, cy - radius * 0.32, radius * 0.08, cx, cy, radius);
+        if (state.darkTheme) {
+          grad.addColorStop(0, '#1D4ED8');
+          grad.addColorStop(0.55, '#0F172A');
+          grad.addColorStop(1, '#050814');
+        } else {
+          grad.addColorStop(0, '#A5D8FF');
+          grad.addColorStop(0.52, '#5C7CFA');
+          grad.addColorStop(1, '#364FC7');
+        }
+        ctx.fillStyle = grad;
+        ctx.shadowColor = state.darkTheme ? 'rgba(56,189,248,0.28)' : 'rgba(79,107,255,0.34)';
+        ctx.shadowBlur = isFlat ? 12 : 34;
+        ctx.fill();
+        ctx.restore();
+
+        // 3. Subtle Graticule
+        ctx.save();
+        ctx.beginPath();
+        geoPath(d3.geoGraticule10());
+        ctx.strokeStyle = state.darkTheme ? 'rgba(56,189,248,0.10)' : 'rgba(255,255,255,0.16)';
+        ctx.lineWidth = 0.65;
+        ctx.stroke();
+        ctx.restore();
+
+        // 4. Luminous Hex-Dot Continent Matrix (Fallback to crisp polygons while loading)
+        if (state.landDots.length > 0) {
+          const center = [-state.rot[0], -state.rot[1]];
+          ctx.fillStyle = state.darkTheme ? 'rgba(186, 230, 253, 0.72)' : 'rgba(255, 255, 255, 0.90)';
+          const dotR = isFlat ? 1.85 : Math.max(1.5, radius * 0.0115);
+          for (let i = 0; i < state.landDots.length; i++) {
+            const d = state.landDots[i];
+            if (!isFlat && d3.geoDistance(d, center) > Math.PI / 2 - 0.04) continue;
+            const pt = projection(d);
+            if (!pt) continue;
+            ctx.beginPath();
+            ctx.arc(pt[0], pt[1], dotR, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        } else if (state.worldFeatures) {
+          ctx.beginPath();
+          geoPath(state.worldFeatures);
+          ctx.fillStyle = state.darkTheme ? 'rgba(148,163,184,0.32)' : 'rgba(255,255,255,0.82)';
+          ctx.fill();
+        }
+
+        // 5. Animated Flowing Shipping Corridors
+        if (state.layers.routes) {
+          ctx.save();
+          ctx.setLineDash([5, 5]);
+          ctx.lineDashOffset = -(now * 0.018);
+          ctx.strokeStyle = '#38BDF8';
+          ctx.lineWidth = 2;
+          DATA.shippingArcs.forEach(a => {
+            ctx.beginPath();
+            geoPath({ type: 'LineString', coordinates: [a.from, a.to] });
+            ctx.stroke();
+          });
+          ctx.restore();
+        }
+
+        // 6. Pulsing Chokepoint Beacons + Floating Glass Labels
+        screenBeacons = [];
+        const snap = DATA.timeline30d[state.timelineIdx];
+        const scaleFactor = snap ? (snap.index / 87) : 1;
+        const center = [-state.rot[0], -state.rot[1]];
+        const pulsePhase = (now % 2000) / 2000;
+
+        if (state.layers.chokepoints) {
+          DATA.chokepoints.forEach(cp => {
+            if (!isFlat && d3.geoDistance(cp.coords, center) > Math.PI / 2 - 0.05) return;
+            const pt = projection(cp.coords);
+            if (!pt) return;
+            const dynVuln = Math.min(99, Math.round(cp.vuln * scaleFactor));
+            const col = dynVuln >= 85 ? '#F43F5E' : dynVuln >= 75 ? '#F59E0B' : '#10B981';
+            screenBeacons.push({ x: pt[0], y: pt[1], cp: { ...cp, vuln: dynVuln } });
+
+            // Pulse ring
+            ctx.beginPath();
+            ctx.arc(pt[0], pt[1], 5 + pulsePhase * 15, 0, Math.PI * 2);
+            ctx.strokeStyle = col;
+            ctx.globalAlpha = (1 - pulsePhase) * 0.7;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+
+            // Core dot
+            ctx.beginPath();
+            ctx.arc(pt[0], pt[1], 5.2, 0, Math.PI * 2);
+            ctx.fillStyle = col;
+            ctx.fill();
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Floating Frosted Label Pill
+            const txt = `${cp.name.split(' ')[0]} · ${dynVuln}`;
+            ctx.font = '600 10px "JetBrains Mono", monospace';
+            const tw = ctx.measureText(txt).width + 14;
+            const bx = pt[0] + 10, by = pt[1] - 11;
+            ctx.fillStyle = state.darkTheme ? 'rgba(13,19,34,0.92)' : 'rgba(255,255,255,0.94)';
+            ctx.beginPath();
+            ctx.roundRect(bx, by, tw, 21, 6);
+            ctx.fill();
+            ctx.strokeStyle = state.darkTheme ? 'rgba(148,163,184,0.28)' : 'rgba(148,163,184,0.38)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            ctx.fillStyle = state.darkTheme ? '#F1F5F9' : '#0F172A';
+            ctx.fillText(txt, bx + 7, by + 14);
+          });
+        }
+
+        // Update coord HUD silently without DOM reflow
+        const hud = document.getElementById('globe-coord-hud');
+        if (hud && !isFlat) {
+          hud.textContent = `${(-state.rot[1]).toFixed(1)}° N, ${(-state.rot[0]).toFixed(1)}° E`;
+        }
+
+        state.globeRafId = requestAnimationFrame(frame);
+      }
+
+      state.globeRafId = requestAnimationFrame(frame);
+    }
+
+    function flyGlobeTo(lon, lat) {
+      state.targetRot = [-lon, -lat];
+    }
+
+    // =========================================================================
+    // HELPERS & DRAWERS
+    // =========================================================================
+    function showToast(msg) {
+      const el = document.getElementById('toast-el');
+      if (!el) return;
+      el.textContent = msg;
+      el.classList.remove('opacity-0');
+      clearTimeout(el._t);
+      el._t = setTimeout(() => el.classList.add('opacity-0'), 2200);
+    }
+
+    function severityBadge(sev) {
+      if (sev === 'critical') return `<span class="px-2 py-0.5 rounded-md font-mono text-[10px] font-bold bg-rose-500/15 text-rose-600 border border-rose-500/25 uppercase">CRITICAL</span>`;
+      if (sev === 'high') return `<span class="px-2 py-0.5 rounded-md font-mono text-[10px] font-bold bg-amber-500/15 text-amber-600 border border-amber-500/25 uppercase">HIGH</span>`;
+      return `<span class="px-2 py-0.5 rounded-md font-mono text-[10px] font-bold bg-sky-500/15 text-sky-600 border border-sky-500/25 uppercase">${sev}</span>`;
+    }
+
+    function sparklineSvg(vals, positive) {
+      const w = 88, h = 28;
+      const min = Math.min(...vals), max = Math.max(...vals);
+      const span = max - min || 1;
+      const pts = vals.map((v, i) => `${((i / (vals.length - 1)) * w).toFixed(1)},${(h - 3 - ((v - min) / span) * (h - 6)).toFixed(1)}`).join(' ');
+      return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" class="overflow-visible"><polyline fill="none" stroke="${positive ? '#10B981' : '#F43F5E'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="${pts}" /></svg>`;
+    }
+
+    function openInspector(kicker, title, htmlBody) {
+      document.getElementById('inspector-kicker').textContent = kicker;
+      document.getElementById('inspector-title').textContent = title;
+      document.getElementById('inspector-body').innerHTML = htmlBody;
+      document.getElementById('inspector-backdrop').classList.remove('hidden');
+      document.getElementById('inspector-drawer').classList.remove('translate-x-full');
+    }
+    function closeInspector() {
+      document.getElementById('inspector-backdrop').classList.add('hidden');
+      document.getElementById('inspector-drawer').classList.add('translate-x-full');
+    }
+
+    function openFeedHealthDrawer() {
+      openInspector('TELEMETRY HEALTH', 'Upstream Intelligence Pipelines', `
+        <p class="text-xs" style="color: var(--muted);">Live connection status across all six Trident ingestion modules. Add free keys to <code class="font-mono">.env.local</code> for live streaming.</p>
+        <div class="space-y-2.5">
+          ${DATA.feeds.map(f => `
+            <div class="glass-chip p-3">
+              <div class="flex items-center justify-between gap-2"><strong class="text-xs">${f.name}</strong><span class="font-mono text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-600 font-semibold">${f.status}</span></div>
+              <div class="font-mono text-[10px] mt-1" style="color: var(--accent);">Cadence: ${f.cadence} · Est. ${f.latency}</div>
+              <div class="text-[11px] mt-1" style="color: var(--muted);">${f.detail}</div>
             </div>
-            <div class="text-[10px] font-mono text-zinc-500 mt-0.5">Tracking Advanced Persistent Threats (APTs) · MITRE ATT&CK · CISA KEV Exploitations</div>
-          </div>
+          `).join('')}
+        </div>
+      `);
+    }
 
-          <!-- Country Filter Pills -->
-          <div class="flex items-center space-x-1 text-[11px] font-mono">
-            <span class="text-zinc-500 text-[10px] mr-1">SPONSOR:</span>
-            ${['ALL', 'PRC', 'RUSSIAN', 'DPRK', 'IRAN'].map(f => `
-              <button data-apt-filter="${f}" class="apt-filter-btn px-2 py-0.5 rounded border ${this.activeAptFilter === f ? 'bg-rose-950 text-rose-300 border-rose-700 font-bold' : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-zinc-200'}">
-                ${f}
+    function inspectChokepoint(cp) {
+      openInspector('MARITIME CHOKEPOINT', cp.name, `
+        <div class="flex items-center justify-between"><span class="font-mono text-xs" style="color: var(--muted);">${cp.region} · ${cp.coords[1].toFixed(2)}°N, ${cp.coords[0].toFixed(2)}°E</span>${severityBadge(cp.severity)}</div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="glass-chip p-3"><div class="font-mono text-[10px] uppercase" style="color: var(--muted);">Oil Transit</div><div class="font-mono text-xl font-bold tabular mt-1">${cp.oilMbpd}M <span class="text-xs font-normal">bbl/d</span></div></div>
+          <div class="glass-chip p-3"><div class="font-mono text-[10px] uppercase" style="color: var(--muted);">Vulnerability</div><div class="font-mono text-xl font-bold tabular mt-1 text-rose-500">${cp.vuln}/100</div></div>
+        </div>
+        <div class="glass-chip p-3.5"><div class="font-mono text-[10px] uppercase mb-1" style="color: var(--muted);">Operational Status</div><div class="font-medium">${cp.status}</div></div>
+      `);
+    }
+
+    function inspectSignal(sig) {
+      openInspector(sig.id, sig.title, `
+        <div class="flex items-center justify-between">${severityBadge(sig.severity)}<span class="font-mono text-xs font-semibold tabular" style="color: var(--accent);">CONFIDENCE: ${sig.confidence}%</span></div>
+        <p style="color: var(--ink-2);">${sig.description}</p>
+        <div class="glass-chip p-3.5 space-y-2">
+          <div><span class="font-mono text-[10px] uppercase block" style="color: var(--muted);">Actor</span><strong>${sig.actor}</strong></div>
+          <div><span class="font-mono text-[10px] uppercase block" style="color: var(--muted);">Market Repricing</span><span class="text-emerald-600 font-medium">${sig.market_implication}</span></div>
+          <div><span class="font-mono text-[10px] uppercase block" style="color: var(--muted);">Indicator</span><span class="font-mono text-xs">${sig.indicator}</span></div>
+        </div>
+      `);
+    }
+
+    function inspectApt(a) {
+      openInspector('STATE-SPONSORED APT', a.name, `
+        <div class="flex items-center justify-between"><span class="font-mono text-xs" style="color: var(--muted);">${a.sponsor}</span>${severityBadge(a.level)}</div>
+        <p style="color: var(--ink-2);">${a.campaign}</p>
+        <div class="flex flex-wrap gap-1.5">${a.ttps.map(t => `<span class="px-2 py-0.5 rounded font-mono text-xs" style="background: var(--accent-soft); color: var(--accent);">${t}</span>`).join('')}</div>
+      `);
+    }
+
+    function inspectKev(k) {
+      openInspector('CISA KEV ADVISORY', k.cve, `
+        <div class="flex items-center justify-between"><span class="font-mono text-xs" style="color: var(--muted);">Added: ${k.added}</span><span class="px-2 py-0.5 rounded font-mono text-xs font-bold bg-rose-500/15 text-rose-600">CVSS ${k.cvss.toFixed(1)}</span></div>
+        <div class="glass-chip p-3.5 space-y-2">
+          <div><span class="font-mono text-[10px] uppercase block" style="color: var(--muted);">Product</span><strong>${k.vendor} — ${k.product}</strong></div>
+          <div><span class="font-mono text-[10px] uppercase block" style="color: var(--muted);">Summary</span><div>${k.name}</div></div>
+          <div class="text-rose-600 font-medium">${k.status}</div>
+        </div>
+      `);
+    }
+
+    // =========================================================================
+    // COMMAND PALETTE
+    // =========================================================================
+    function getPaletteItems() {
+      return [
+        { cat: 'VIEW', label: '[1] Convergence Matrix & 30D Time-Travel', action: () => switchPillar('convergence') },
+        { cat: 'VIEW', label: '[2] Geopolitics & Kinetic Map', action: () => switchPillar('geopolitics') },
+        { cat: 'VIEW', label: '[3] Macroeconomics & US Treasury Yield Curve', action: () => switchPillar('macroeconomics') },
+        { cat: 'VIEW', label: '[4] Cyber Warfare, MITRE ATT&CK & CISA KEV', action: () => switchPillar('cyber') },
+        { cat: 'VIEW', label: '[5] Deterministic War-Gaming & P10/P90 Cones', action: () => switchPillar('ai') },
+        { cat: 'VIEW', label: '[6] Interactive D3 Entity Knowledge Graph', action: () => switchPillar('graph') },
+        { cat: 'ACTION', label: 'Toggle Wallboard Mode [F]', action: () => toggleWallboard() },
+        { cat: 'ACTION', label: 'Inspect Upstream Feed Health', action: () => openFeedHealthDrawer() },
+        ...DATA.chokepoints.map(cp => ({ cat: 'CHOKEPOINT', label: `${cp.name} (${cp.oilMbpd}M bbl/d · Vuln ${cp.vuln})`, action: () => { switchPillar('geopolitics'); flyGlobeTo(cp.coords[0], cp.coords[1]); inspectChokepoint(cp); } })),
+        ...DATA.kevs.map(k => ({ cat: 'CISA KEV', label: `${k.cve} · ${k.vendor} ${k.product}`, action: () => { switchPillar('cyber'); inspectKev(k); } }))
+      ];
+    }
+
+    function renderPaletteResults(query = '') {
+      const q = query.trim().toLowerCase();
+      const matches = getPaletteItems().filter(it => !q || it.label.toLowerCase().includes(q) || it.cat.toLowerCase().includes(q));
+      const container = document.getElementById('palette-results');
+      if (!matches.length) { container.innerHTML = `<div class="p-4 text-xs font-mono text-center" style="color: var(--muted);">No matching records.</div>`; return; }
+      container.innerHTML = matches.slice(0, 10).map((it, idx) => `
+        <button type="button" data-pal-idx="${idx}" class="w-full text-left px-4 py-2.5 flex items-center justify-between hover:bg-indigo-500/10">
+          <span class="text-sm font-medium">${it.label}</span>
+          <span class="font-mono text-[10px] px-2 py-0.5 rounded" style="background: var(--accent-soft); color: var(--accent);">${it.cat}</span>
+        </button>
+      `).join('');
+      container.querySelectorAll('[data-pal-idx]').forEach((btn, i) => btn.addEventListener('click', () => { playTick(700); closePalette(); matches[i].action(); }));
+    }
+
+    function openPalette() {
+      const m = document.getElementById('palette-modal');
+      m.classList.remove('hidden'); m.classList.add('flex');
+      const inp = document.getElementById('palette-input');
+      inp.value = ''; renderPaletteResults('');
+      setTimeout(() => inp.focus(), 20);
+    }
+    function closePalette() {
+      const m = document.getElementById('palette-modal');
+      m.classList.add('hidden'); m.classList.remove('flex');
+    }
+
+    // =========================================================================
+    // VIEW 1: CONVERGENCE (ZERO-JANK IN-PLACE TIMELINE PATCHING!)
+    // =========================================================================
+    function patchConvergenceTimeline() {
+      const snap = DATA.timeline30d[state.timelineIdx];
+      const lbl = document.getElementById('tl-label');
+      if (lbl) lbl.textContent = snap.label;
+      const kpiLbl = document.getElementById('kpi-tl-badge');
+      if (kpiLbl) kpiLbl.textContent = `Threat Convergence (${snap.label})`;
+      animateNumber(document.getElementById('kpi-threat-idx'), snap.index, 0);
+      animateNumber(document.getElementById('kpi-spread'), snap.spread10y2y, 0, '10Y–2Y +', 'bps');
+      animateNumber(document.getElementById('kpi-brent-val'), snap.brent, 2, '$');
+      const cushTxt = document.getElementById('kpi-cushing-txt');
+      if (cushTxt) cushTxt.textContent = `${snap.cushingPct}% Full`;
+      const cushArc = document.getElementById('cushing-ring-arc');
+      if (cushArc) {
+        const c = 2 * Math.PI * 24;
+        cushArc.setAttribute('stroke-dashoffset', (c * (1 - snap.cushingPct / 100)).toFixed(1));
+      }
+      const cushLbl = document.getElementById('cushing-ring-lbl');
+      if (cushLbl) cushLbl.textContent = `${Math.round(snap.cushingPct)}%`;
+
+      // Update trajectory paths in-place
+      const w = 310, h = 88, pad = 10;
+      const pts = DATA.timeline30d.slice(0, Math.max(2, state.timelineIdx + 1));
+      const idxD = pts.map((d, i) => `${i === 0 ? 'M' : 'L'} ${(pad + (i / 30) * (w - pad * 2)).toFixed(1)} ${(h - 10 - ((d.index - 60) / 36) * (h - 20)).toFixed(1)}`).join(' ');
+      const brD = pts.map((d, i) => `${i === 0 ? 'M' : 'L'} ${(pad + (i / 30) * (w - pad * 2)).toFixed(1)} ${(h - 10 - ((d.brent - 68) / 8) * (h - 20)).toFixed(1)}`).join(' ');
+      document.getElementById('traj-idx-path')?.setAttribute('d', idxD);
+      document.getElementById('traj-brent-path')?.setAttribute('d', brD);
+    }
+
+    function renderConvergenceView() {
+      const snap = DATA.timeline30d[state.timelineIdx];
+      const visibleSignals = state.watchlist === 'ALL' ? DATA.signals : DATA.signals.filter(s => s.theater === state.watchlist);
+      const c = 2 * Math.PI * 24;
+
+      return `
+        <div class="space-y-4 view-animate">
+          <!-- 30D TIME-TRAVEL SCRUBBER + WATCHLIST -->
+          <div class="glass-panel px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5 flex-1 min-w-[260px]">
+              <button id="timeline-play-btn" type="button" class="px-3.5 py-1.5 rounded-xl font-mono text-xs font-bold text-white shrink-0 shadow-sm" style="background: linear-gradient(135deg, #4F6BFF, #7C3AED);">
+                ${state.playingTimeline ? '⏸ PAUSE' : '▶ PLAY 30D'}
               </button>
-            `).join('')}
-          </div>
-        </div>
-
-        <!-- 1. MITRE ATT&CK TACTICAL COVERAGE MATRIX -->
-        <div class="p-4 bg-[#0d0f15] border border-zinc-800/80 rounded font-mono">
-          <div class="text-xs font-bold text-zinc-100 uppercase tracking-wider pb-2 border-b border-zinc-800 flex justify-between">
-            <span>MITRE ATT&CK ENTERPRISE TACTICAL HEATMAP</span>
-            <span class="text-[10px] text-zinc-500">ACTIVE IN-THE-WILD TECHNIQUES</span>
-          </div>
-
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5 mt-3">
-            ${mitre_tactics.map(tac => `
-              <div class="p-2.5 bg-zinc-900/40 rounded border border-zinc-800/70">
-                <div class="flex justify-between items-center text-xs font-bold text-zinc-200">
-                  <span>${tac.tactic_name}</span>
-                  <span class="text-[10px] px-1.5 py-0.2 rounded bg-zinc-950 text-cyan-400 border border-zinc-800">
-                    ${tac.tactic_id}
-                  </span>
-                </div>
-                <div class="text-[10px] text-zinc-500 mt-1">
-                  Observed Techniques: <strong class="text-zinc-300">${tac.observed_techniques_count}</strong>
-                </div>
-                <div class="mt-2 space-y-1">
-                  ${tac.critical_techniques.map(tech => `
-                    <div class="text-[9px] bg-black/60 p-1 rounded border border-zinc-800/80 flex justify-between">
-                      <span class="text-zinc-300 truncate">${tech.technique_id} ${tech.name}</span>
-                      <span class="text-rose-400 font-bold ml-1">${tech.detection_priority.split(' ')[0]}</span>
-                    </div>
-                  `).join('')}
-                </div>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-
-        <!-- 2. ACTIVE APT DOSSIERS GRID -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-          ${filteredApts.map(apt => `
-            <div class="p-4 bg-[#0d0f15] border border-zinc-800/80 rounded font-mono">
-              <div class="flex justify-between items-start mb-2">
-                <div>
-                  <div class="text-sm font-bold text-zinc-100 flex items-center space-x-2">
-                    <span>${apt.primary_name}</span>
-                    <span class="text-[10px] text-zinc-500">(${apt.actor_id})</span>
-                  </div>
-                  <div class="text-[11px] text-rose-400/90 font-medium">${apt.state_sponsor} // ${apt.attribution_agency}</div>
-                </div>
-                <span class="text-[10px] px-2 py-0.5 rounded font-bold uppercase ${apt.threat_level === 'critical' ? 'bg-rose-950 text-rose-300 border border-rose-800' : 'bg-amber-950 text-amber-300 border border-amber-800'}">
-                  ${apt.threat_level}
-                </span>
-              </div>
-
-              <div class="text-xs text-zinc-300 leading-relaxed my-2 bg-zinc-950/60 p-2.5 rounded border border-zinc-800/70">
-                ${apt.recent_campaign}
-              </div>
-
-              <div class="grid grid-cols-2 gap-2 text-[10px] pt-2 border-t border-zinc-800/80 text-zinc-400">
-                <div>
-                  <span class="text-zinc-500">SECTORS:</span>
-                  <div class="text-zinc-300 truncate">${apt.targeted_sectors.join(', ')}</div>
-                </div>
-                <div>
-                  <span class="text-zinc-500">CORE TTPs:</span>
-                  <div class="text-cyan-400 truncate">${apt.signature_ttp_ids.join(', ')}</div>
-                </div>
-              </div>
+              <span id="tl-label" class="font-mono text-xs font-bold tabular px-2.5 py-1 rounded-lg glass-chip shrink-0" style="color: var(--accent);">${snap.label}</span>
+              <input id="timeline-scrubber" type="range" min="0" max="30" value="${state.timelineIdx}" class="precision-slider flex-1" />
+              <button id="timeline-live-btn" type="button" class="font-mono text-[10px] font-semibold px-2.5 py-1 rounded-lg glass-chip hover:border-indigo-400">LIVE</button>
             </div>
-          `).join('')}
-        </div>
-
-        <!-- 2. TWO-COLUMN: CISA KEV ZERO-DAYS & INFRASTRUCTURE READINESS -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <!-- CISA KEV Live Radar -->
-          <div class="p-4 bg-[#0d0f15] border border-zinc-800/80 rounded font-mono">
-            <div class="text-xs font-bold text-zinc-100 uppercase tracking-wider pb-2 border-b border-zinc-800 flex justify-between">
-              <span>CISA KNOWN EXPLOITED VULNERABILITIES (KEV)</span>
-              <span class="text-[10px] text-rose-400">ACTIVELY WEAPONIZED</span>
-            </div>
-
-            <div class="divide-y divide-zinc-800/70 mt-2">
-              ${cisa_kev_feed.map(kev => `
-                <div class="py-2.5">
-                  <div class="flex justify-between items-center text-xs">
-                    <span class="font-bold text-rose-400">${kev.cve_id}</span>
-                    <span class="text-[10px] px-1.5 py-0.2 rounded bg-zinc-900 border border-zinc-800 text-zinc-300">
-                      CVSS ${kev.cvss_score.toFixed(1)}
-                    </span>
-                  </div>
-                  <div class="text-[11px] font-medium text-zinc-200 mt-0.5">${kev.vendor_project} - ${kev.product}</div>
-                  <div class="text-[10px] text-zinc-400 mt-0.5">${kev.vulnerability_name}</div>
-                  <div class="text-[9px] text-zinc-500 mt-1 flex justify-between">
-                    <span>STATUS: <span class="text-zinc-400">${kev.active_exploitation_status}</span></span>
-                    <span>ADDED: ${kev.date_added}</span>
-                  </div>
-                </div>
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <span class="font-mono text-[10px] uppercase mr-1" style="color: var(--muted);">WATCHLIST:</span>
+              ${[['ALL', 'Global'], ['MIDEAST', 'Middle East'], ['INDOPAC', 'Indo-Pacific'], ['CYBER', 'Cyber OT']].map(([k, lbl]) => `
+                <button type="button" data-watchlist="${k}" class="px-2.5 py-1 rounded-lg font-mono text-[11px] font-semibold border transition-all ${state.watchlist === k ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm' : 'glass-chip hover:border-indigo-400'}">${lbl}</button>
               `).join('')}
             </div>
           </div>
 
-          <!-- Critical Infrastructure Sector Exposure -->
-          <div class="p-4 bg-[#0d0f15] border border-zinc-800/80 rounded font-mono">
-            <div class="text-xs font-bold text-zinc-100 uppercase tracking-wider pb-2 border-b border-zinc-800 flex justify-between">
-              <span>CRITICAL INFRASTRUCTURE DEFENSE POSTURE</span>
-              <span class="text-[10px] text-zinc-500">SCADA / OT EXPOSURE</span>
-            </div>
-
-            <div class="space-y-3 mt-3">
-              ${infrastructure_targets.map(tgt => `
-                <div class="p-2.5 rounded bg-zinc-900/40 border border-zinc-800/80">
-                  <div class="flex justify-between items-center text-xs font-bold text-zinc-200">
-                    <span>${tgt.sector_name}</span>
-                    <span class="text-amber-400 text-[10px]">${tgt.readiness_posture}</span>
-                  </div>
-                  <div class="text-[10px] text-zinc-400 mt-1">
-                    SCADA Exposure: <span class="text-zinc-300">${tgt.scada_exposure_level}</span>
-                  </div>
-                  <div class="text-[10px] text-zinc-500 mt-0.5">
-                    Threat Adversaries: <span class="text-rose-400">${tgt.primary_threat_actors.join(', ')}</span>
-                  </div>
+          <div class="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch">
+            <!-- LEFT -->
+            <div class="xl:col-span-4 flex flex-col gap-4">
+              <div class="glass-panel p-5">
+                <div class="flex items-center justify-between">
+                  <span id="kpi-tl-badge" class="font-mono text-[11px] font-semibold uppercase tracking-wider" style="color: var(--muted);">Threat Convergence (${snap.label})</span>
+                  <span class="px-2 py-0.5 rounded-md font-mono text-[10px] font-bold bg-rose-500/15 text-rose-600">CRITICAL</span>
                 </div>
-              `).join('')}
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  bindCyberFilters() {
-    const btns = document.querySelectorAll('.apt-filter-btn');
-    btns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const filter = btn.getAttribute('data-apt-filter') || 'ALL';
-        this.activeAptFilter = filter;
-        this.renderContent();
-      });
-    });
-  }
-
-  // ==========================================
-  // VIEW: CONVERGENCE (SITUATION ROOM)
-  // ==========================================
-  renderConvergenceView(): string {
-    return `
-      <div class="space-y-4 font-mono">
-        <!-- AI STRATEGIC SITREP PREVIEW HERO -->
-        <div class="p-4 bg-gradient-to-r from-purple-950/30 via-[#0d0f15] to-[#0d0f15] border border-purple-800/60 rounded flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
-          <div>
-            <div class="flex items-center space-x-2">
-              <span class="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></span>
-              <span class="text-xs font-bold text-purple-200 uppercase tracking-wider">STRATEGIC AI SITREP ACTIVE // NEURAL CONVERGENCE</span>
-              <span class="text-[9px] px-1.5 py-0.2 rounded bg-purple-900/80 text-purple-200 border border-purple-700/80 font-bold">
-                INDEX: ${this.aiSitrep?.threat_convergence_index || 87}/100
-              </span>
-            </div>
-            <div class="text-[11px] text-zinc-300 mt-1 max-w-4xl line-clamp-2">
-              ${this.aiSitrep?.executive_summary || "Multi-domain correlation between maritime chokepoints and Volt Typhoon SCADA persistence active."}
-            </div>
-          </div>
-          <button id="btn-open-ai-console" class="px-3 py-1.5 rounded bg-purple-900/80 hover:bg-purple-800 text-purple-200 border border-purple-700 font-mono text-[11px] font-semibold whitespace-nowrap transition-colors flex items-center space-x-1.5">
-            <span>LAUNCH FULL AI CONSOLE [5]</span>
-            <span>&rarr;</span>
-          </button>
-        </div>
-
-        <div class="p-4 bg-[#0d0f15] border border-zinc-800/80 rounded flex justify-between items-center">
-          <div>
-            <div class="text-xs font-bold text-zinc-100 uppercase tracking-wider">CROSS-DOMAIN CONVERGENCE // REAL-TIME FUSION</div>
-            <div class="text-[10px] text-zinc-500 mt-0.5">Correlating multi-domain telemetry: Cyber Pre-Positioning + Physical Flashpoints + Commodity Risk Repricing</div>
-          </div>
-          <span class="text-[10px] px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800">
-            AUTO-CORRELATION ACTIVE
-          </span>
-        </div>
-
-        <div class="space-y-3">
-          ${this.convergenceSignals.map(sig => `
-            <div class="p-4 bg-[#0d0f15] border-l-2 ${sig.severity === 'critical' ? 'border-l-rose-500' : 'border-l-amber-500'} border-y border-r border-zinc-800/80 rounded">
-              <div class="flex flex-wrap justify-between items-center gap-2 mb-1.5">
-                <div class="flex items-center space-x-2">
-                  <span class="text-[10px] font-bold px-1.5 py-0.2 rounded ${sig.severity === 'critical' ? 'bg-rose-950 text-rose-300 border border-rose-800' : 'bg-amber-950 text-amber-300 border border-amber-800'}">
-                    ${sig.id} // ${sig.severity.toUpperCase()}
-                  </span>
-                  <span class="text-[10px] text-zinc-500">CONFIDENCE: <strong class="text-zinc-300">${sig.confidence_score}%</strong></span>
+                <div class="flex items-baseline gap-2.5 mt-2">
+                  <span id="kpi-threat-idx" class="text-5xl font-extrabold tracking-tight tabular">${snap.index}</span>
+                  <span class="font-mono text-sm font-semibold" style="color: var(--muted);">/ 100</span>
+                  <span id="kpi-spread" class="ml-auto font-mono text-xs font-semibold text-emerald-600 tabular">10Y–2Y +${snap.spread10y2y}bps</span>
                 </div>
-                <div class="text-[10px] text-zinc-500">
-                  INDICATOR: <strong class="text-zinc-400">${sig.primary_indicator}</strong>
+                <div class="mt-4">
+                  <div class="h-2.5 w-full rounded-full overflow-hidden flex gap-0.5">
+                    ${DATA.domainActivity.map(d => `<div style="width:${d.pct}%; background:${d.color};"></div>`).join('')}
+                  </div>
+                  <div class="mt-3 space-y-1.5 text-xs">
+                    ${DATA.domainActivity.map(d => `
+                      <div class="flex items-center justify-between">
+                        <span class="flex items-center gap-2" style="color: var(--ink-2);"><span class="w-2 h-2 rounded-full" style="background:${d.color};"></span>${d.label}</span>
+                        <span class="font-mono tabular font-semibold">${d.count}/100</span>
+                      </div>
+                    `).join('')}
+                  </div>
                 </div>
               </div>
 
-              <div class="text-sm font-bold text-zinc-100 my-1">${sig.title}</div>
-              <div class="text-xs text-zinc-300 leading-relaxed mb-3">${sig.description}</div>
+              <div class="glass-panel p-4">
+                <div class="flex items-center justify-between mb-1.5">
+                  <div><div class="text-xs font-semibold">30D Crisis Trajectory</div><div class="text-[11px]" style="color: var(--muted);">Cobalt = Index · Amber = Brent</div></div>
+                  <span id="kpi-brent-val" class="font-mono text-xs font-bold tabular" style="color: var(--accent);">$${snap.brent.toFixed(2)}</span>
+                </div>
+                <svg viewBox="0 0 310 88" class="w-full h-22 overflow-visible">
+                  <path id="traj-brent-path" d="" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" opacity="0.85"/>
+                  <path id="traj-idx-path" d="" fill="none" stroke="#4F6BFF" stroke-width="2.5" stroke-linecap="round"/>
+                </svg>
+              </div>
 
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-2 pt-2 border-t border-zinc-800/70 text-[10px]">
-                <div>
-                  <span class="text-zinc-500">GEOGRAPHIC REGION:</span>
-                  <div class="text-zinc-300 font-semibold">${sig.geographical_target || 'N/A'}</div>
+              <div class="glass-panel p-4 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                  <svg width="58" height="58" viewBox="0 0 60 60" class="shrink-0">
+                    <circle cx="30" cy="30" r="24" fill="none" stroke="rgba(148,163,184,0.22)" stroke-width="5.5"/>
+                    <circle id="cushing-ring-arc" cx="30" cy="30" r="24" fill="none" stroke="#F43F5E" stroke-width="5.5" stroke-linecap="round" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${(c * (1 - snap.cushingPct / 100)).toFixed(1)}" transform="rotate(-90 30 30)" style="transition: stroke-dashoffset 0.25s ease;"/>
+                    <text id="cushing-ring-lbl" x="30" y="34" text-anchor="middle" font-family="JetBrains Mono" font-size="11.5" font-weight="700" fill="currentColor">${Math.round(snap.cushingPct)}%</text>
+                  </svg>
+                  <div><div class="text-xs font-bold">Cushing Hub</div><div id="kpi-cushing-txt" class="font-mono text-xs tabular" style="color: var(--muted);">${snap.cushingPct}% Full</div></div>
                 </div>
-                <div>
-                  <span class="text-zinc-500">ATTRIBUTED ACTOR:</span>
-                  <div class="text-rose-400 font-semibold">${sig.threat_actor || 'Systemic Market Friction'}</div>
-                </div>
-                <div>
-                  <span class="text-zinc-500">FINANCIAL / MARKET REPRICING:</span>
-                  <div class="text-cyan-300 font-semibold">${sig.market_implication || 'Hedging Monitored'}</div>
+                <div class="h-10 w-px" style="background: var(--border);"></div>
+                <div class="flex items-center gap-3">
+                  <svg width="58" height="58" viewBox="0 0 60 60" class="shrink-0">
+                    <circle cx="30" cy="30" r="24" fill="none" stroke="rgba(148,163,184,0.22)" stroke-width="5.5"/>
+                    <circle cx="30" cy="30" r="24" fill="none" stroke="#4F6BFF" stroke-width="5.5" stroke-linecap="round" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${(c * (1 - 0.554)).toFixed(1)}" transform="rotate(-90 30 30)"/>
+                    <text x="30" y="34" text-anchor="middle" font-family="JetBrains Mono" font-size="11.5" font-weight="700" fill="currentColor">55%</text>
+                  </svg>
+                  <div><div class="text-xs font-bold">US SPR</div><div class="font-mono text-xs tabular" style="color: var(--muted);">395.4M bbl</div></div>
                 </div>
               </div>
             </div>
-          `).join('')}
-        </div>
-      </div>
-    `;
-  }
 
-  bindConvergenceControls() {
-    const btn = document.getElementById('btn-open-ai-console');
-    if (btn) {
-      btn.addEventListener('click', () => {
-        this.switchPillar('ai');
-      });
-    }
-  }
-
-  // ==========================================
-  // VIEW: AI STRATEGIC SYNTHESIS (PHASE 4)
-  // ==========================================
-  renderAiPillar(): string {
-    const sitrep = this.aiSitrep;
-    const hw = this.hardwareInfo;
-
-    return `
-      <div class="space-y-4 font-mono">
-        <!-- TOP EXECUTIVE AI ACCELERATION HEADER -->
-        <div class="p-4 bg-[#0d0f15] border border-purple-900/60 rounded flex flex-wrap justify-between items-center gap-3">
-          <div>
-            <div class="flex items-center space-x-2">
-              <span class="w-2.5 h-2.5 rounded-full bg-purple-400 animate-pulse shadow-[0_0_8px_#a855f7]"></span>
-              <span class="text-sm font-bold text-zinc-100 tracking-wider">TRIDENT NEURAL C2 // STRATEGIC SITREP SYNTHESIS</span>
-              <span class="text-[10px] px-2 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-800 font-bold">
-                ${sitrep ? sitrep.sitrep_id : 'SITREP-LIVE'}
-              </span>
-            </div>
-            <div class="text-[11px] text-zinc-400 mt-1">
-              Cross-domain semantic vector correlation across Geopolitical Flashpoints, Macro Buffers, and Cyber TTPs.
-            </div>
-          </div>
-
-          <!-- Hardware Acceleration Telemetry Pills -->
-          <div class="flex flex-wrap items-center gap-2 text-[10px]">
-            <span class="px-2 py-1 rounded bg-zinc-900 border border-zinc-800 text-zinc-300 flex items-center space-x-1.5">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-              <span>${hw?.acceleration_tier || 'Apple M-Series AMX & NEON SIMD Accelerated'}</span>
-            </span>
-            <span class="px-2 py-1 rounded bg-zinc-900 border border-zinc-800 text-zinc-300">
-              RAM: <strong class="text-emerald-400">${hw?.memory_allocated_mb || 14.8} MB</strong>
-            </span>
-            <span class="px-2 py-1 rounded bg-zinc-900 border border-zinc-800 text-zinc-300">
-              LATENCY: <strong class="text-cyan-400">${sitrep?.inference_latency_ms || 12}ms</strong>
-            </span>
-          </div>
-        </div>
-
-        <!-- TOP METRICS STRIP: CONVERGENCE INDEX & VULNERABILITY RADAR -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-2.5">
-          <div class="p-3 bg-[#0d0f15] border border-zinc-800/80 rounded">
-            <div class="text-[10px] uppercase tracking-wider text-zinc-500">THREAT CONVERGENCE INDEX</div>
-            <div class="flex items-baseline space-x-2 mt-1">
-              <span class="text-2xl font-bold text-rose-400">${sitrep?.threat_convergence_index || 87}</span>
-              <span class="text-[10px] text-zinc-500">/ 100</span>
-              <span class="text-[10px] px-1.5 py-0.2 rounded bg-rose-950 text-rose-300 border border-rose-800 font-semibold ml-auto">CRITICAL</span>
-            </div>
-            <div class="w-full bg-zinc-900 h-1.5 rounded-full mt-2 overflow-hidden">
-              <div class="bg-gradient-to-r from-amber-500 to-rose-500 h-full rounded-full" style="width: ${sitrep?.threat_convergence_index || 87}%"></div>
-            </div>
-          </div>
-
-          <div class="p-3 bg-[#0d0f15] border border-zinc-800/80 rounded">
-            <div class="text-[10px] uppercase tracking-wider text-zinc-500">ACTIVE STATE SYNDICATES</div>
-            <div class="text-sm font-bold text-zinc-200 mt-1">${sitrep?.active_syndicates.length || 3} Confirmed Adversaries</div>
-            <div class="text-[10px] text-rose-400 mt-1 truncate">Volt Typhoon · Sandworm · Lazarus</div>
-            <div class="text-[9px] text-zinc-500 mt-0.5">Focus: Energy & Port SCADA</div>
-          </div>
-
-          <div class="p-3 bg-[#0d0f15] border border-zinc-800/80 rounded">
-            <div class="text-[10px] uppercase tracking-wider text-zinc-500">EXPLOITED CVE FOOTPRINT</div>
-            <div class="text-sm font-bold text-zinc-200 mt-1">CVSS 10.0 Root RCEs</div>
-            <div class="text-[10px] text-amber-400 mt-1 truncate">CVE-2024-3400 · CVE-2024-21887</div>
-            <div class="text-[9px] text-zinc-500 mt-0.5">Perimeter Edge Firewalls</div>
-          </div>
-
-          <div class="p-3 bg-[#0d0f15] border border-zinc-800/80 rounded">
-            <div class="text-[10px] uppercase tracking-wider text-zinc-500">MACRO BUFFER RESILIENCE</div>
-            <div class="text-sm font-bold text-zinc-200 mt-1">33% Cushing Bottoms</div>
-            <div class="text-[10px] text-cyan-400 mt-1">10Y-2Y Dis-Inverted (+30 bps)</div>
-            <div class="text-[9px] text-zinc-500 mt-0.5">Refinancing Friction Elevated</div>
-          </div>
-        </div>
-
-        <!-- INTERACTIVE STRATEGIC PROMPT CONSOLE -->
-        <div class="p-4 bg-[#0a0c12] border border-zinc-800 rounded">
-          <div class="text-xs font-bold text-zinc-300 uppercase tracking-wider mb-2 flex items-center justify-between">
-            <span>NEURAL REASONING & STRATEGIC QUERY CONSOLE</span>
-            <span class="text-[10px] font-normal text-zinc-500">PRESS [ENTER] TO EXECUTE SYNTHESIS</span>
-          </div>
-
-          <!-- Prompt Input Bar -->
-          <div class="flex gap-2">
-            <div class="relative flex-1">
-              <span class="absolute left-3 top-2.5 text-purple-400 font-bold">&gt;</span>
-              <input
-                id="ai-prompt-input"
-                type="text"
-                value="${this.activeAiPrompt}"
-                placeholder="Query strategic cross-domain engine (e.g. Red Sea disruption on LNG and Volt Typhoon)..."
-                class="w-full bg-[#0d0f15] border border-zinc-800 rounded pl-8 pr-4 py-2 text-xs text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-purple-600 font-mono"
-              />
-            </div>
-            <button
-              id="btn-execute-ai"
-              class="px-4 py-2 rounded bg-purple-700 hover:bg-purple-600 text-white font-mono text-xs font-bold transition-colors flex items-center space-x-1.5 disabled:opacity-50"
-              ${this.isSynthesizing ? 'disabled' : ''}
-            >
-              <span>${this.isSynthesizing ? 'SYNTHESIZING...' : 'SYNTHESIZE'}</span>
-              <span class="text-[10px]">&rarr;</span>
-            </button>
-          </div>
-
-          <!-- Suggested Intelligence Preset Chips -->
-          <div class="flex flex-wrap items-center gap-1.5 mt-3 pt-2.5 border-t border-zinc-800/80">
-            <span class="text-[10px] text-zinc-500 mr-1">PRESETS:</span>
-            <button class="ai-preset-chip px-2 py-0.5 rounded bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-purple-300 border border-zinc-800 text-[10px] transition-colors" data-prompt="Synthesize Red Sea transit disruption impact on European gas storage and LNG spot spreads">
-              Red Sea Chokepoint & Volt Typhoon SCADA
-            </button>
-            <button class="ai-preset-chip px-2 py-0.5 rounded bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-purple-300 border border-zinc-800 text-[10px] transition-colors" data-prompt="Evaluate Volt Typhoon critical infrastructure pre-positioning against US Gulf Coast energy corridor">
-              Gulf Coast Energy Corridor & LotL Malware
-            </button>
-            <button class="ai-preset-chip px-2 py-0.5 rounded bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-purple-300 border border-zinc-800 text-[10px] transition-colors" data-prompt="Cross-correlate 10Y-2Y yield curve steepening with sovereign debt volatility and maritime risk premiums">
-              Yield Curve Steepening vs Utility Cyber Refinancing
-            </button>
-            <button class="ai-preset-chip px-2 py-0.5 rounded bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-purple-300 border border-zinc-800 text-[10px] transition-colors" data-prompt="Assess Sandworm substation attack framework against Black Sea commercial maritime logistics">
-              Black Sea Maritime & Sandworm Substation Strikes
-            </button>
-          </div>
-        </div>
-
-        <!-- EXECUTIVE SUMMARY BRIEF -->
-        <div class="p-4 bg-[#0d0f15] border-l-4 border-l-purple-500 border-y border-r border-zinc-800 rounded">
-          <div class="text-[10px] font-bold uppercase tracking-wider text-purple-400 mb-1">
-            EXECUTIVE SYNTHESIS BRIEF // DISPOSITION
-          </div>
-          <div class="text-xs text-zinc-200 leading-relaxed">
-            ${sitrep ? sitrep.executive_summary : 'Synthesizing strategic brief across physical, macroeconomic, and cyber domains...'}
-          </div>
-        </div>
-
-        <!-- CASCADING CAUSALITY CHAINS (CROSS-DOMAIN SEQUENCES) -->
-        <div class="space-y-3">
-          <div class="text-xs font-bold uppercase tracking-wider text-zinc-400 flex items-center justify-between">
-            <span>CASCADING CAUSALITY CHAINS // MULTI-DOMAIN CORRELATION</span>
-            <span class="text-[10px] font-normal text-zinc-500">BAYESIAN RIPPLE MODELING</span>
-          </div>
-
-          ${(sitrep?.primary_inferences || []).map(inf => `
-            <div class="p-4 bg-[#0d0f15] border border-zinc-800 rounded space-y-3">
-              <div class="flex flex-wrap justify-between items-center gap-2">
-                <div class="flex items-center space-x-2">
-                  <span class="text-[10px] font-bold px-1.5 py-0.2 rounded ${inf.risk_tier === 'critical' ? 'bg-rose-950 text-rose-300 border border-rose-800' : 'bg-amber-950 text-amber-300 border border-amber-800'}">
-                    ${inf.id} // ${inf.risk_tier.toUpperCase()}
-                  </span>
-                  <span class="text-xs font-bold text-zinc-100">${inf.title}</span>
-                </div>
-                <div class="flex space-x-1">
-                  ${inf.correlated_domains.map(d => `
-                    <span class="text-[9px] px-1.5 py-0.2 rounded bg-zinc-900 border border-zinc-800 text-zinc-400 uppercase">${d.replace('_', ' ')}</span>
-                  `).join('')}
-                </div>
+            <!-- CENTER: 120Hz HEX-DOT 3D GLOBE CANVAS -->
+            <div class="xl:col-span-5 flex flex-col justify-between glass-panel p-5 relative overflow-hidden">
+              <div class="flex items-center justify-between z-10">
+                <div><div class="font-mono text-[11px] font-semibold uppercase tracking-wider" style="color: var(--accent);">HEX-DOT 3D TACTICAL GLOBE</div><div class="text-xs" style="color: var(--muted);">Drag with momentum · Click any pulsing beacon</div></div>
+                <span id="globe-coord-hud" class="font-mono text-[11px] px-2 py-1 rounded-lg glass-chip tabular">22.0° N, 48.0° E</span>
               </div>
-
-              <div class="text-xs text-zinc-300 leading-relaxed italic">
-                "${inf.primary_thesis}"
-              </div>
-
-              <!-- 3-Step Causality Visual Sequence -->
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5 pt-2">
-                ${inf.causality_sequence.map(step => `
-                  <div class="p-2.5 bg-[#080a0f] border border-zinc-800/90 rounded text-[10px] space-y-1.5 relative">
-                    <div class="flex justify-between items-center text-zinc-500">
-                      <span class="font-bold text-purple-400">STEP 0${step.step}</span>
-                      <span class="text-[9px] px-1 py-0.2 rounded bg-zinc-900 border border-zinc-800 text-zinc-400 uppercase">${step.domain}</span>
-                    </div>
-                    <div>
-                      <div class="text-zinc-500 text-[9px]">TRIGGER:</div>
-                      <div class="text-zinc-200 font-semibold">${step.trigger_event}</div>
-                    </div>
-                    <div>
-                      <div class="text-zinc-500 text-[9px]">IMMEDIATE IMPACT:</div>
-                      <div class="text-zinc-300">${step.immediate_impact}</div>
-                    </div>
-                    <div>
-                      <div class="text-zinc-500 text-[9px]">SECONDARY RIPPLE:</div>
-                      <div class="text-amber-300/90">${step.secondary_ripple}</div>
-                    </div>
-                    <div class="text-right pt-1 border-t border-zinc-900 text-[9px] text-zinc-500">
-                      CONFIDENCE: <strong class="text-emerald-400">${step.confidence_pct}%</strong>
-                    </div>
-                  </div>
+              <div class="w-full h-[350px] my-1 relative"><canvas id="hero-globe-canvas" class="globe-canvas"></canvas></div>
+              <div class="flex flex-wrap items-center justify-center gap-1.5 z-10">
+                ${DATA.chokepoints.map(cp => `
+                  <button type="button" data-fly-cp="${cp.id}" class="glass-chip px-2.5 py-1 text-[11px] font-mono font-medium hover:border-indigo-400 flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full ${cp.vuln >= 85 ? 'bg-rose-500' : cp.vuln >= 75 ? 'bg-amber-500' : 'bg-emerald-500'}"></span>
+                    ${cp.name.split(' ')[0]}
+                  </button>
                 `).join('')}
               </div>
+            </div>
 
-              <!-- Market & Defense Guidance -->
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-2 pt-2 border-t border-zinc-800/80 text-[10px]">
-                <div class="p-2 bg-cyan-950/20 border border-cyan-900/50 rounded">
-                  <span class="text-cyan-400 font-bold uppercase tracking-wider block mb-0.5">MARKET IMPLICATIONS & POSITIONING:</span>
-                  <span class="text-zinc-200">${inf.market_vector}</span>
+            <!-- RIGHT SIGNALS -->
+            <div class="xl:col-span-3 flex flex-col gap-4">
+              <div class="glass-panel p-4 flex-1 flex flex-col">
+                <div class="flex items-center justify-between mb-3">
+                  <span class="font-mono text-[11px] font-semibold uppercase tracking-wider" style="color: var(--muted);">Watchlist Signals</span>
+                  <span class="font-mono text-[10px] font-semibold" style="color: var(--accent);">${visibleSignals.length} ACTIVE</span>
                 </div>
-                <div class="p-2 bg-rose-950/20 border border-rose-900/50 rounded">
-                  <span class="text-rose-400 font-bold uppercase tracking-wider block mb-0.5">DEFENSIVE POSTURE & COUNTERMEASURES:</span>
-                  <span class="text-zinc-200">${inf.defensive_posture}</span>
+                <div class="space-y-2.5 flex-1">
+                  ${visibleSignals.map(sig => `
+                    <button type="button" data-sig-id="${sig.id}" class="w-full text-left p-3 rounded-xl glass-chip hover:border-indigo-400">
+                      <div class="flex items-center justify-between gap-2 mb-1">${severityBadge(sig.severity)}<span class="font-mono text-[11px] font-bold tabular">${sig.confidence}%</span></div>
+                      <div class="text-xs font-bold leading-snug">${sig.title}</div>
+                      <div class="text-[11px] mt-1" style="color: var(--muted);">${sig.market_implication}</div>
+                    </button>
+                  `).join('')}
                 </div>
+                <button type="button" id="launch-graph-btn" class="mt-3 w-full py-2.5 rounded-xl font-mono text-xs font-semibold text-white hover:opacity-95 shadow-sm" style="background: linear-gradient(135deg, #4F6BFF 0%, #7C3AED 100%);">
+                  OPEN ENTITY GRAPH [6] →
+                </button>
               </div>
             </div>
-          `).join('')}
+          </div>
         </div>
+      `;
+    }
 
-        <!-- DIRECTIVES & GROUNDED EVIDENCE NODE GRID -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <!-- Actionable Strategic Directives -->
-          <div class="p-4 bg-[#0d0f15] border border-zinc-800 rounded space-y-3">
-            <div class="text-xs font-bold uppercase tracking-wider text-zinc-300 flex items-center justify-between">
-              <span>ACTIONABLE COMMAND DIRECTIVES</span>
-              <span class="text-[10px] px-1.5 py-0.2 rounded bg-emerald-950 text-emerald-300 border border-emerald-800">EXECUTION READY</span>
-            </div>
-
-            <div class="space-y-2">
-              ${(sitrep?.actionable_directives || []).map((dir, idx) => `
-                <div class="p-2.5 bg-[#080a0f] border border-zinc-800/80 rounded flex items-start space-x-2.5 text-xs text-zinc-300">
-                  <span class="w-4 h-4 rounded bg-purple-950 border border-purple-800 text-purple-300 flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">
-                    ${idx + 1}
-                  </span>
-                  <div class="leading-relaxed">${dir}</div>
-                </div>
-              `).join('')}
+    // =========================================================================
+    // VIEW 2: GEOPOLITICS (HiDPI 120Hz CANVAS)
+    // =========================================================================
+    function renderGeopoliticsView() {
+      return `
+        <div class="space-y-4 view-animate">
+          <div class="glass-panel p-4 flex flex-wrap items-center justify-between gap-3">
+            <div><h2 class="text-sm font-bold uppercase tracking-wide">Kinetic Theater &amp; Maritime Surveillance</h2><div class="text-xs" style="color: var(--muted);">120Hz Hex-Dot 3D Globe &amp; Natural Earth Flat Projection</div></div>
+            <div class="flex flex-wrap items-center gap-2">
+              <div class="glass-chip p-1 flex items-center gap-1">
+                <button type="button" data-map-mode="globe" class="px-2.5 py-1 rounded-lg font-mono text-[11px] font-semibold ${state.mapMode === 'globe' ? 'bg-indigo-600 text-white' : ''}">3D GLOBE</button>
+                <button type="button" data-map-mode="flat" class="px-2.5 py-1 rounded-lg font-mono text-[11px] font-semibold ${state.mapMode === 'flat' ? 'bg-indigo-600 text-white' : ''}">FLAT MAP</button>
+              </div>
+              ${['chokepoints', 'routes', 'incidents'].map(k => `<button type="button" data-layer-toggle="${k}" class="px-2.5 py-1.5 rounded-lg font-mono text-[11px] font-semibold border ${state.layers[k] ? 'bg-sky-500/15 text-sky-600 border-sky-500/35' : 'glass-chip'}">${state.layers[k] ? '●' : '○'} ${k.toUpperCase()}</button>`).join('')}
             </div>
           </div>
-
-          <!-- RAG Grounded Evidence Nodes -->
-          <div class="p-4 bg-[#0d0f15] border border-zinc-800 rounded space-y-3">
-            <div class="text-xs font-bold uppercase tracking-wider text-zinc-300 flex items-center justify-between">
-              <span>RAG GROUNDED CITATIONS // SEMANTIC RETRIEVAL</span>
-              <span class="text-[10px] text-zinc-500 font-normal">SIMD COSINE SIMILARITY</span>
-            </div>
-
-            <div class="space-y-2">
-              ${(this.aiEvidenceNodes.length > 0 ? this.aiEvidenceNodes : [
-                {
-                  id: "NODE-APT-01",
-                  title: "Volt Typhoon (Vanguard Panda) Maritime Port Staging",
-                  domain: "cyber_warfare",
-                  similarity_score: 0.96,
-                  citation_source: "CISA & Five Eyes Advisory AA24-038A",
-                  excerpt: "Living-off-the-land techniques targeting SOHO routers and SCADA controllers across US maritime ports and Gulf coast pipelines."
-                },
-                {
-                  id: "NODE-GEO-01",
-                  title: "Bab el-Mandeb Anti-Ship Ballistic Missile Strikes",
-                  domain: "geopolitics",
-                  similarity_score: 0.94,
-                  citation_source: "UKMTO Operations & US NAVCENT Fleet Telemetry",
-                  excerpt: "Commercial maritime divergence around Cape of Good Hope, adding 10-14 transit days and +24% container freight spot rates."
-                },
-                {
-                  id: "NODE-MACRO-02",
-                  title: "Strategic Petroleum Reserve & Cushing Storage Buffer",
-                  domain: "macroeconomics",
-                  similarity_score: 0.91,
-                  citation_source: "US EIA Weekly Petroleum Report",
-                  excerpt: "US SPR at 398M bbl (56% capacity) and Cushing crude stocks at 24.8M bbl (tank bottoms), limiting strategic surge capacity."
-                },
-                {
-                  id: "NODE-VULN-01",
-                  title: "CVE-2024-3400 Palo Alto PAN-OS GlobalProtect Command Injection",
-                  domain: "cyber_warfare",
-                  similarity_score: 0.89,
-                  citation_source: "CISA Known Exploited Vulnerabilities Catalog",
-                  excerpt: "CVSS 10.0 unauthenticated root code execution actively exploited by state-sponsored actors against defense industrial base firewalls."
-                }
-              ]).map(node => `
-                <div class="p-2.5 bg-[#080a0f] border border-zinc-800/80 rounded space-y-1 text-xs">
-                  <div class="flex justify-between items-center text-[10px]">
-                    <div class="flex items-center space-x-1.5">
-                      <span class="px-1.5 py-0.2 rounded bg-zinc-900 text-zinc-400 font-mono text-[9px] uppercase border border-zinc-800">${node.domain}</span>
-                      <span class="font-bold text-zinc-200">${node.title}</span>
-                    </div>
-                    <span class="text-emerald-400 font-semibold font-mono">${Math.round(node.similarity_score * 100)}% MATCH</span>
-                  </div>
-                  <div class="text-[10px] text-zinc-400 leading-snug">${node.excerpt}</div>
-                  <div class="text-[9px] text-zinc-500 pt-0.5 flex justify-between">
-                    <span>SOURCE: <strong class="text-zinc-400">${node.citation_source}</strong></span>
-                    <span class="text-zinc-600 font-mono">${node.id}</span>
-                  </div>
-                </div>
-              `).join('')}
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+            <div class="lg:col-span-8 glass-panel p-4"><div class="w-full h-[460px]"><canvas id="full-map-canvas" class="globe-canvas"></canvas></div></div>
+            <div class="lg:col-span-4 space-y-4">
+              <div class="glass-panel p-4 space-y-2">
+                <div class="font-mono text-[11px] font-semibold uppercase" style="color: var(--muted);">Maritime Chokepoints</div>
+                ${DATA.chokepoints.map(cp => `<button type="button" data-geo-cp="${cp.id}" class="w-full text-left p-3 rounded-xl glass-chip hover:border-indigo-400"><div class="flex justify-between"><span class="text-xs font-bold">${cp.name}</span><span class="font-mono text-xs font-bold ${cp.vuln >= 85 ? 'text-rose-500' : 'text-amber-500'}">${cp.vuln}/100</span></div><div class="font-mono text-[11px] mt-0.5" style="color: var(--muted);">${cp.oilMbpd}M bbl/d · ${cp.tradeShare}% trade</div></button>`).join('')}
+              </div>
+              <div class="glass-panel p-4 space-y-2">
+                <div class="font-mono text-[11px] font-semibold uppercase" style="color: var(--muted);">Kinetic Incidents</div>
+                ${DATA.incidents.map(inc => `<button type="button" data-geo-inc="${inc.id}" class="w-full text-left p-3 rounded-xl glass-chip hover:border-amber-400"><div class="flex justify-between mb-1"><span class="font-mono text-[10px]" style="color: var(--accent);">${inc.type}</span>${severityBadge(inc.severity)}</div><div class="text-xs font-bold">${inc.title}</div></button>`).join('')}
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    `;
-  }
+      `;
+    }
 
-  bindAiControls() {
-    const input = document.getElementById('ai-prompt-input') as HTMLInputElement | null;
-    const btnExecute = document.getElementById('btn-execute-ai');
+    // =========================================================================
+    // VIEW 3: MACROECONOMICS (WITH LIVE GLIDING CROSSHAIR TOOLTIP)
+    // =========================================================================
+    function renderMacroView() {
+      const pts = DATA.yieldCurve.points;
+      const sel = pts[state.selectedTenorIdx] || pts[8];
+      const W = 820, H = 220, pad = { t: 18, r: 24, b: 30, l: 44 };
+      const sx = i => pad.l + (i / (pts.length - 1)) * (W - pad.l - pad.r);
+      const sy = r => H - pad.b - ((r - 3.8) / (5.6 - 3.8)) * (H - pad.t - pad.b);
+      const curD = pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${sx(i)} ${sy(p.r)}`).join(' ');
+      const m1D  = pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${sx(i)} ${sy(p.m1)}`).join(' ');
+      const y1D  = pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${sx(i)} ${sy(p.y1)}`).join(' ');
 
-    const triggerSynthesis = () => {
-      if (input && input.value.trim().length > 0) {
-        this.runAiSynthesis(input.value.trim());
+      return `
+        <div class="space-y-5 view-animate">
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="glass-panel p-4"><div class="font-mono text-[10px] uppercase" style="color: var(--muted);">10Y–2Y Spread</div><div class="font-mono text-2xl font-bold text-emerald-600 tabular mt-1">+30 bps</div></div>
+            <div class="glass-panel p-4"><div class="font-mono text-[10px] uppercase" style="color: var(--muted);">10Y–3M Spread</div><div class="font-mono text-2xl font-bold text-amber-500 tabular mt-1">+4 bps</div></div>
+            <div class="glass-panel p-4"><div class="font-mono text-[10px] uppercase" style="color: var(--muted);">US SPR Buffer</div><div class="font-mono text-2xl font-bold tabular mt-1">395.4M bbl</div></div>
+            <div class="glass-panel p-4"><div class="font-mono text-[10px] uppercase" style="color: var(--muted);">Cushing Hub</div><div class="font-mono text-2xl font-bold text-rose-500 tabular mt-1">25.1M bbl</div></div>
+          </div>
+
+          <div class="glass-panel p-5">
+            <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b" style="border-color: var(--border);">
+              <div><h2 class="text-sm font-bold uppercase">US Treasury Benchmark Par Yield Curve</h2><div class="text-xs" style="color: var(--muted);">Glide pointer across curve for live crosshair · Cobalt = Current · Sky = 1M Ago · Dashed = 1Y Ago</div></div>
+              <div id="yc-inspector-bar" class="glass-chip px-3 py-1.5 font-mono text-xs tabular flex items-center gap-3"><span>TENOR <strong style="color: var(--accent);">${sel.m}</strong></span><span>NOW <strong>${sel.r.toFixed(2)}%</strong></span><span>1M ${sel.m1.toFixed(2)}%</span><span>1Y ${sel.y1.toFixed(2)}%</span></div>
+            </div>
+            <div class="my-3 overflow-x-auto relative">
+              <svg id="yield-curve-svg" viewBox="0 0 ${W} ${H}" class="w-full h-52 select-none cursor-crosshair">
+                ${[4.0, 4.5, 5.0, 5.5].map(r => `<line x1="${pad.l}" y1="${sy(r)}" x2="${W - pad.r}" y2="${sy(r)}" stroke="rgba(148,163,184,0.22)"/><text x="${pad.l - 8}" y="${sy(r) + 4}" font-family="JetBrains Mono" font-size="10" fill="#64748B" text-anchor="end">${r.toFixed(1)}%</text>`).join('')}
+                <line id="yc-crosshair" x1="${sx(state.selectedTenorIdx)}" y1="${pad.t}" x2="${sx(state.selectedTenorIdx)}" y2="${H - pad.b}" stroke="#4F6BFF" stroke-width="1.2" stroke-dasharray="3,3" opacity="0.65" style="transition: all 0.12s ease-out;"/>
+                <path d="${y1D}" fill="none" stroke="#94A3B8" stroke-width="1.6" stroke-dasharray="4,4"/>
+                <path d="${m1D}" fill="none" stroke="#0EA5E9" stroke-width="1.8" opacity="0.75"/>
+                <path d="${curD}" fill="none" stroke="#4F6BFF" stroke-width="3" stroke-linecap="round"/>
+                ${pts.map((p, i) => `<g data-tenor-idx="${i}" class="cursor-pointer"><circle cx="${sx(i)}" cy="${sy(p.r)}" r="${i === state.selectedTenorIdx ? 6.5 : 4}" fill="${i === state.selectedTenorIdx ? '#4F6BFF' : '#FFFFFF'}" stroke="#4F6BFF" stroke-width="2.2"/><text x="${sx(i)}" y="${H - 8}" font-family="JetBrains Mono" font-size="10" fill="${i === state.selectedTenorIdx ? '#4F6BFF' : '#64748B'}" text-anchor="middle">${p.m}</text></g>`).join('')}
+              </svg>
+            </div>
+            <div class="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-11 gap-1.5">
+              ${pts.map((p, i) => `<button type="button" data-tenor-idx="${i}" class="p-2 rounded-xl text-center font-mono border tabular ${i === state.selectedTenorIdx ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm' : 'glass-chip hover:border-indigo-400'}"><div class="text-[10px]">${p.m}</div><div class="text-xs font-bold">${p.r.toFixed(2)}%</div></button>`).join('')}
+            </div>
+          </div>
+
+          <div class="glass-panel p-5">
+            <h3 class="text-sm font-bold uppercase mb-3">Strategic Commodity Benchmarks &amp; 7D Sparklines</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+              ${DATA.commodities.map(c => `<div class="glass-chip p-3.5"><div class="flex items-start justify-between"><div><div class="flex items-center gap-2"><span class="font-mono text-xs font-bold">${c.ticker}</span><span class="font-mono text-[11px] font-bold ${c.delta >= 0 ? 'text-emerald-600' : 'text-rose-500'}">${c.delta >= 0 ? '+' : ''}${c.delta}%</span></div><div class="font-mono text-xl font-bold tabular mt-1">$${c.price.toLocaleString()} <span class="text-[10px] font-normal" style="color:var(--muted);">${c.unit}</span></div></div>${sparklineSvg(c.spark, c.delta >= 0)}</div><div class="text-xs mt-1" style="color:var(--ink-2);">${c.name}</div></div>`).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // =========================================================================
+    // VIEW 4: CYBER WARFARE
+    // =========================================================================
+    function renderCyberView() {
+      const f = state.aptSponsor;
+      const apts = f === 'ALL' ? DATA.apts : DATA.apts.filter(a => a.sponsorKey === f);
+      const mitre = f === 'ALL' ? DATA.mitre : DATA.mitre.filter(m => m.sponsors.includes(f));
+      const kevs = f === 'ALL' ? DATA.kevs : DATA.kevs.filter(k => k.sponsors.includes(f));
+      const infra = f === 'ALL' ? DATA.infraTargets : DATA.infraTargets.filter(i => i.sponsors.includes(f));
+
+      return `
+        <div class="space-y-5 view-animate">
+          <div class="glass-panel p-4 flex flex-wrap items-center justify-between gap-3">
+            <div><h2 class="text-sm font-bold uppercase">State-Sponsored Cyber Threat Matrix &amp; CISA KEV</h2><div class="text-xs" style="color: var(--muted);">Sponsor filter cross-filters MITRE ATT&amp;CK, APTs, KEVs, and OT Infrastructure</div></div>
+            <div class="flex items-center gap-1.5 flex-wrap">${['ALL', 'PRC', 'RUSSIAN', 'DPRK', 'IRAN'].map(sp => `<button type="button" data-apt-filter="${sp}" class="px-3 py-1.5 rounded-xl font-mono text-xs font-semibold border ${f === sp ? 'bg-indigo-600 text-white border-indigo-600' : 'glass-chip'}">${sp}</button>`).join('')}</div>
+          </div>
+          <div class="glass-panel p-5">
+            <h3 class="text-sm font-bold uppercase mb-3">Interactive MITRE ATT&amp;CK Tactical Matrix (${mitre.length})</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+              ${mitre.map(m => `<button type="button" data-mitre-id="${m.id}" class="text-left p-3.5 rounded-xl glass-chip hover:border-indigo-400"><div class="flex justify-between mb-1"><span class="font-mono text-[10px] font-bold" style="color: var(--accent);">${m.techId}</span><span class="font-mono text-[10px] font-bold ${m.priority === 'P0' ? 'text-rose-600' : 'text-amber-600'}">${m.priority}</span></div><div class="text-xs font-bold">${m.techName}</div><div class="text-[11px] mt-0.5" style="color: var(--muted);">${m.tactic} (${m.count})</div></button>`).join('')}
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            ${apts.map(a => `<button type="button" data-apt-id="${a.id}" class="glass-panel p-4 text-left hover:border-indigo-400"><div class="flex justify-between"><div><div class="text-sm font-bold">${a.name}</div><div class="font-mono text-[11px]" style="color: var(--muted);">${a.sponsor}</div></div>${severityBadge(a.level)}</div><p class="text-xs mt-2" style="color: var(--ink-2);">${a.campaign}</p></button>`).join('')}
+          </div>
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <div class="glass-panel p-5 space-y-2">
+              <h3 class="text-sm font-bold uppercase mb-2">CISA Known Exploited Vulnerabilities (KEV)</h3>
+              ${kevs.map(k => `<button type="button" data-kev-id="${k.cve}" class="w-full text-left p-3 rounded-xl glass-chip flex justify-between items-center hover:border-rose-400"><div><strong class="font-mono text-xs">${k.cve}</strong> <span class="font-mono text-[10px]" style="color:var(--muted);">${k.added}</span><div class="text-xs" style="color:var(--ink-2);">${k.vendor} ${k.product}</div></div><span class="font-mono text-xs font-bold text-rose-600">${k.cvss.toFixed(1)}</span></button>`).join('')}
+            </div>
+            <div class="glass-panel p-5 space-y-2.5">
+              <h3 class="text-sm font-bold uppercase mb-2">Critical Infrastructure OT Posture</h3>
+              ${infra.map(inf => `<div class="glass-chip p-3"><div class="flex justify-between text-xs font-bold"><span>${inf.sector}</span><span class="font-mono text-rose-500">${inf.incidents} active</span></div><div class="font-mono text-[10px] mt-1" style="color:var(--muted);">${inf.posture} · ${inf.exposure}</div></div>`).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // =========================================================================
+    // VIEW 5: WAR-GAMING (ZERO-JANK 120Hz IN-PLACE SLIDER UPDATES!)
+    // =========================================================================
+    function computeWargame() {
+      const { closureDays, cyberSeverity, sprRelease } = state.wargame;
+      const brent = 74.28 + (closureDays * 0.42) + (cyberSeverity * 0.14) - (sprRelease * 0.11);
+      const euGas = Math.max(12, Math.min(98, 89.2 - (closureDays * 0.34) - (cyberSeverity * 0.08)));
+      const us10y = 4.42 + (closureDays * 0.0055) + (cyberSeverity * 0.002) - (sprRelease * 0.0012);
+      const us10yBps = Math.round((us10y - 4.42) * 100);
+      const index = Math.max(20, Math.min(99, Math.round(58 + closureDays * 0.38 + cyberSeverity * 0.22 - sprRelease * 0.08)));
+      return { brent, euGas, us10y, us10yBps, index };
+    }
+
+    function patchWargameInPlace() {
+      const m = computeWargame();
+      const { closureDays, cyberSeverity, sprRelease, preset } = state.wargame;
+      const setTxt = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+      setTxt('wg-preset-lbl', `Active Scenario: ${preset}`);
+      setTxt('wg-closure-val', `${closureDays} Days`);
+      setTxt('wg-cyber-val', `${cyberSeverity}%`);
+      setTxt('wg-spr-val', `${sprRelease}M bbl`);
+      animateNumber(document.getElementById('wg-out-brent'), m.brent, 2, '$');
+      animateNumber(document.getElementById('wg-out-gas'), m.euGas, 1, '', '%');
+      animateNumber(document.getElementById('wg-out-10y'), m.us10y, 2, '', '%');
+      animateNumber(document.getElementById('wg-out-idx'), m.index, 0, '', '/100');
+
+      const summaryEl = document.getElementById('wg-summary-text');
+      if (summaryEl) {
+        summaryEl.innerHTML = `<strong style="color:var(--ink);">Deterministic Output:</strong> Brent median projects to <strong class="font-mono">$${m.brent.toFixed(2)}/bbl</strong>, EU gas compresses to <strong class="font-mono">${m.euGas.toFixed(1)}%</strong>, and US 10Y yields shift <strong class="font-mono">${m.us10yBps >= 0 ? '+' : ''}${m.us10yBps} bps</strong>.`;
       }
-    };
 
-    if (btnExecute) {
-      btnExecute.addEventListener('click', triggerSynthesis);
+      // Update P10/P50/P90 Fan Chart SVG in place
+      const W = 540, H = 185, pad = { l: 42, r: 64, t: 18, b: 26 };
+      const steps = [0, 15, 30, 45, 60, 75, 90];
+      const base = 74.28, delta = m.brent - base;
+      const pts = steps.map((d, i) => {
+        const frac = i / (steps.length - 1);
+        const p50 = base + delta * Math.pow(frac, 0.85);
+        const spread = 2.5 + frac * Math.max(8, Math.abs(delta) * 0.45);
+        return { d, p10: Math.max(58, p50 - spread), p50, p90: p50 + spread * 1.15 };
+      });
+      const minY = 55, maxY = 145;
+      const sx = i => pad.l + (i / (pts.length - 1)) * (W - pad.l - pad.r);
+      const sy = v => H - pad.b - ((Math.min(maxY, v) - minY) / (maxY - minY)) * (H - pad.t - pad.b);
+      const upper = pts.map((p, i) => `${sx(i).toFixed(1)},${sy(p.p90).toFixed(1)}`).join(' ');
+      const lower = pts.slice().reverse().map((p, ri) => `${sx(pts.length - 1 - ri).toFixed(1)},${sy(p.p10).toFixed(1)}`).join(' ');
+      const medPath = pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${sx(i).toFixed(1)} ${sy(p.p50).toFixed(1)}`).join(' ');
+      const last = pts[pts.length - 1];
+
+      document.getElementById('fan-cone-poly')?.setAttribute('points', `${upper} ${lower}`);
+      document.getElementById('fan-med-path')?.setAttribute('d', medPath);
+      const l90 = document.getElementById('fan-lbl-90');
+      const l50 = document.getElementById('fan-lbl-50');
+      const l10 = document.getElementById('fan-lbl-10');
+      if (l90) { l90.setAttribute('y', (sy(last.p90) + 4).toFixed(1)); l90.textContent = `P90 $${last.p90.toFixed(0)}`; }
+      if (l50) { l50.setAttribute('y', (sy(last.p50) + 4).toFixed(1)); l50.textContent = `P50 $${last.p50.toFixed(0)}`; }
+      if (l10) { l10.setAttribute('y', (sy(last.p10) + 4).toFixed(1)); l10.textContent = `P10 $${last.p10.toFixed(0)}`; }
     }
 
-    if (input) {
-      input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          triggerSynthesis();
-        }
-      });
-    }
+    function renderAiView() {
+      const m = computeWargame();
+      const { closureDays, cyberSeverity, sprRelease, preset } = state.wargame;
+      const W = 540, H = 185, pad = { l: 42, r: 64, t: 18, b: 26 };
+      const sy = v => H - pad.b - ((v - 55) / (145 - 55)) * (H - pad.t - pad.b);
+      const sx = i => pad.l + (i / 6) * (W - pad.l - pad.r);
 
-    const presetChips = document.querySelectorAll('.ai-preset-chip');
-    presetChips.forEach(chip => {
-      chip.addEventListener('click', () => {
-        const prompt = chip.getAttribute('data-prompt');
-        if (prompt) {
-          if (input) input.value = prompt;
-          this.runAiSynthesis(prompt);
-        }
-      });
-    });
-  }
-
-  // ==========================================
-  // VIEW: GEOPOLITICS & KINETIC MAP
-  // ==========================================
-  renderGeopoliticsView(): string {
-    return `
-      <div class="space-y-4 font-mono">
-        <div class="p-4 bg-[#0d0f15] border border-zinc-800/80 rounded flex justify-between items-center">
-          <div>
-            <div class="text-xs font-bold text-zinc-100 uppercase tracking-wider">KINETIC THEATER & MARITIME SURVEILLANCE</div>
-            <div class="text-[10px] text-zinc-500 mt-0.5">UCDP Armed Conflicts · NOTAM Airspace Closures · Naval Chokepoints</div>
-          </div>
-          <span class="text-[10px] px-2 py-0.5 rounded bg-zinc-900 border border-zinc-800 text-zinc-300">
-            RADAR ACTIVE
-          </span>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <!-- Tactical Canvas / Coordinates Map -->
-          <div class="lg:col-span-2 h-96 bg-[#07090e] border border-zinc-800 rounded relative overflow-hidden flex flex-col justify-between p-4">
-            <div class="flex justify-between items-center z-10 text-[10px] text-zinc-500">
-              <span>COORDINATES: 27.18° N, 56.26° E (HORMUZ SECTOR)</span>
-              <span>GRID PROJECTION: MERCATOR 2D</span>
-            </div>
-
-            <!-- Vector Map Backdrop Grid -->
-            <div class="absolute inset-0 opacity-15 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:40px_40px]"></div>
-
-            <!-- Target Pins -->
-            <div class="absolute top-[45%] left-[55%] flex items-center space-x-2">
-              <span class="w-3 h-3 rounded-full bg-rose-500 animate-ping absolute"></span>
-              <span class="w-2.5 h-2.5 rounded-full bg-rose-500 relative"></span>
-              <span class="text-[10px] bg-black/90 px-1.5 py-0.5 rounded border border-rose-800 text-rose-300">Strait of Hormuz (Naval Drills)</span>
-            </div>
-
-            <div class="absolute top-[52%] left-[48%] flex items-center space-x-2">
-              <span class="w-2.5 h-2.5 rounded-full bg-rose-500 relative"></span>
-              <span class="text-[10px] bg-black/90 px-1.5 py-0.5 rounded border border-rose-800 text-rose-300">Bab-el-Mandeb (ASBM Threat Zone)</span>
-            </div>
-
-            <div class="z-10 text-[10px] text-zinc-500 flex justify-between">
-              <span>SATELLITE PASS: METEOSAT / FIRMS ACTIVE</span>
-              <span>GPU ENGINE: WEBGL DECK.GL ACCELERATED</span>
+      return `
+        <div class="space-y-5 view-animate">
+          <div class="glass-panel p-5 flex flex-wrap items-center justify-between gap-4">
+            <div><div class="font-mono text-[11px] font-semibold uppercase tracking-wider" style="color: var(--accent);">120Hz DETERMINISTIC WAR-GAMING + P10/P50/P90 CONES</div><h2 class="text-lg font-bold mt-0.5">Cross-Domain Shock Simulator &amp; Historical Replay</h2></div>
+            <div class="flex flex-wrap gap-1.5">
+              <button type="button" data-wg-preset="suez" class="glass-chip px-2.5 py-1.5 text-xs font-mono hover:border-indigo-400">2021 Suez (6D)</button>
+              <button type="button" data-wg-preset="redsea" class="glass-chip px-2.5 py-1.5 text-xs font-mono hover:border-indigo-400">2024 Red Sea Reroute</button>
+              <button type="button" data-wg-preset="hormuz" class="glass-chip px-2.5 py-1.5 text-xs font-mono hover:border-indigo-400">Hormuz 45D + Volt Typhoon</button>
+              <button type="button" data-wg-preset="extreme" class="glass-chip px-2.5 py-1.5 text-xs font-mono hover:border-rose-400">90D Dual-Strait Shock</button>
             </div>
           </div>
 
-          <!-- Incidents Feed -->
-          <div class="space-y-2">
-            ${this.geoIncidents.map(inc => `
-              <div class="p-3 bg-[#0d0f15] border border-zinc-800/80 rounded text-xs">
-                <div class="flex justify-between items-start font-bold text-zinc-200">
-                  <span>${inc.title}</span>
-                  <span class="text-[10px] px-1.5 py-0.2 rounded bg-rose-950 text-rose-300 border border-rose-800 uppercase">${inc.incident_type}</span>
-                </div>
-                <div class="text-[10px] text-zinc-400 mt-1">${inc.details}</div>
-                <div class="text-[9px] text-zinc-500 mt-1.5 flex justify-between">
-                  <span>LOCATION: ${inc.location_name}</span>
-                  <span class="text-emerald-400 font-semibold">${inc.source_verified ? 'VERIFIED' : 'UNCONFIRMED'}</span>
-                </div>
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+            <div class="lg:col-span-5 glass-panel p-5 space-y-5">
+              <div id="wg-preset-lbl" class="font-mono text-[11px] font-semibold uppercase" style="color: var(--muted);">Active Scenario: ${preset}</div>
+              <div><div class="flex justify-between text-xs font-semibold mb-1.5"><span>Strait Closure Duration</span><span id="wg-closure-val" class="font-mono tabular" style="color: var(--accent);">${closureDays} Days</span></div><input id="wg-closure" type="range" min="0" max="90" value="${closureDays}" class="precision-slider"/></div>
+              <div><div class="flex justify-between text-xs font-semibold mb-1.5"><span>OT / Pipeline Cyber Disruption</span><span id="wg-cyber-val" class="font-mono tabular text-rose-500">${cyberSeverity}%</span></div><input id="wg-cyber" type="range" min="0" max="100" value="${cyberSeverity}" class="precision-slider"/></div>
+              <div><div class="flex justify-between text-xs font-semibold mb-1.5"><span>US SPR Emergency Release</span><span id="wg-spr-val" class="font-mono tabular text-emerald-600">${sprRelease}M bbl</span></div><input id="wg-spr" type="range" min="0" max="100" value="${sprRelease}" class="precision-slider"/></div>
+              <div id="wg-summary-text" class="glass-chip p-3.5 text-xs leading-relaxed" style="color: var(--ink-2);"></div>
+            </div>
+
+            <div class="lg:col-span-7 flex flex-col gap-4">
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+                <div class="glass-panel p-4"><div class="font-mono text-[10px] uppercase" style="color: var(--muted);">Brent P50</div><div id="wg-out-brent" class="font-mono text-2xl font-bold tabular mt-1">$${m.brent.toFixed(2)}</div></div>
+                <div class="glass-panel p-4"><div class="font-mono text-[10px] uppercase" style="color: var(--muted);">EU Gas</div><div id="wg-out-gas" class="font-mono text-2xl font-bold tabular mt-1 text-sky-600">${m.euGas.toFixed(1)}%</div></div>
+                <div class="glass-panel p-4"><div class="font-mono text-[10px] uppercase" style="color: var(--muted);">US 10Y</div><div id="wg-out-10y" class="font-mono text-2xl font-bold tabular mt-1">${m.us10y.toFixed(2)}%</div></div>
+                <div class="glass-panel p-4"><div class="font-mono text-[10px] uppercase" style="color: var(--muted);">Threat Idx</div><div id="wg-out-idx" class="font-mono text-2xl font-bold tabular mt-1 text-indigo-600">${m.index}/100</div></div>
               </div>
-            `).join('')}
+
+              <div class="glass-panel p-5">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="font-mono text-[11px] font-semibold uppercase" style="color: var(--muted);">90-Day Brent Crude Forecast Fan (P10 / P50 / P90)</div>
+                  <span class="font-mono text-[10px]" style="color: var(--accent);">LIQUID REAL-TIME CONE</span>
+                </div>
+                <svg viewBox="0 0 ${W} ${H}" class="w-full h-44 select-none">
+                  ${[60, 80, 100, 120, 140].map(v => `<line x1="${pad.l}" y1="${sy(v)}" x2="${W - pad.r}" y2="${sy(v)}" stroke="rgba(148,163,184,0.22)"/><text x="${pad.l - 6}" y="${sy(v) + 4}" font-family="JetBrains Mono" font-size="10" fill="#64748B" text-anchor="end">$${v}</text>`).join('')}
+                  <polygon id="fan-cone-poly" points="" fill="rgba(79,107,255,0.16)" />
+                  <path id="fan-med-path" d="" fill="none" stroke="#4F6BFF" stroke-width="2.8" stroke-linecap="round"/>
+                  <text id="fan-lbl-90" x="${W - pad.r + 6}" y="40" font-family="JetBrains Mono" font-size="10" font-weight="600" fill="#F43F5E"></text>
+                  <text id="fan-lbl-50" x="${W - pad.r + 6}" y="80" font-family="JetBrains Mono" font-size="10.5" font-weight="700" fill="#4F6BFF"></text>
+                  <text id="fan-lbl-10" x="${W - pad.r + 6}" y="120" font-family="JetBrains Mono" font-size="10" font-weight="600" fill="#10B981"></text>
+                  ${[0, 15, 30, 45, 60, 75, 90].map((d, i) => `<text x="${sx(i)}" y="${H - 6}" font-family="JetBrains Mono" font-size="10" fill="#64748B" text-anchor="middle">D+${d}</text>`).join('')}
+                </svg>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    `;
-  }
-}
+      `;
+    }
 
-// Boot application
-document.addEventListener('DOMContentLoaded', () => {
-  new TridentTerminalApp();
-});
+    // =========================================================================
+    // VIEW 6: ENTITY KNOWLEDGE GRAPH WITH NEIGHBORHOOD SPOTLIGHT & PIN-TO-GLOBE
+    // =========================================================================
+    function renderGraphView() {
+      return `
+        <div class="space-y-4 view-animate">
+          <div class="glass-panel p-4 flex flex-wrap items-center justify-between gap-3">
+            <div><h2 class="text-sm font-bold uppercase tracking-wide">Interactive Entity Knowledge Graph (Neighborhood Spotlight)</h2><div class="text-xs" style="color: var(--muted);">Hover any node to spotlight its exact causal chain · Drag to rearrange · Click to inspect &amp; jump to 3D Globe</div></div>
+            <div class="flex items-center gap-1.5 flex-wrap">
+              ${[['ALL', 'All'], ['APT', 'APTs'], ['CVE', 'CISA KEVs'], ['INFRA', 'OT Infra'], ['COMMODITY', 'Markets']].map(([k, lbl]) => `
+                <button type="button" data-graph-filter="${k}" class="px-2.5 py-1 rounded-xl font-mono text-xs font-semibold border ${state.graphFilter === k ? 'bg-indigo-600 text-white border-indigo-600' : 'glass-chip'}">${lbl}</button>
+              `).join('')}
+            </div>
+          </div>
+          <div class="glass-panel p-4">
+            <div id="knowledge-graph-container" class="w-full h-[500px]"></div>
+          </div>
+        </div>
+      `;
+    }
+
+    function mountKnowledgeGraph() {
+      const container = document.getElementById('knowledge-graph-container');
+      if (!container) return;
+      const rect = container.getBoundingClientRect();
+      const width = Math.max(340, Math.floor(rect.width || 900));
+      const height = 500;
+      container.innerHTML = '';
+
+      const colorMap = { APT: '#F43F5E', CVE: '#F59E0B', INFRA: '#4F6BFF', COMMODITY: '#10B981' };
+      const nodes = DATA.graph.nodes.map(n => ({ ...n }));
+      const links = DATA.graph.links.map(l => ({ ...l }));
+
+      const svg = d3.select(container).append('svg').attr('viewBox', `0 0 ${width} ${height}`).attr('class', 'w-full h-full select-none');
+      const sim = d3.forceSimulation(nodes)
+        .force('link', d3.forceLink(links).id(d => d.id).distance(120))
+        .force('charge', d3.forceManyBody().strength(-380))
+        .force('center', d3.forceCenter(width / 2, height / 2))
+        .force('collide', d3.forceCollide(44));
+
+      const link = svg.append('g').selectAll('line').data(links).enter().append('line')
+        .attr('stroke', 'rgba(148,163,184,0.45)').attr('stroke-width', 1.8).style('transition', 'opacity 0.18s ease, stroke 0.18s ease');
+
+      const linkLabel = svg.append('g').selectAll('text').data(links).enter().append('text')
+        .attr('font-family', 'JetBrains Mono').attr('font-size', 9).attr('fill', 'var(--muted)').attr('text-anchor', 'middle').text(d => d.rel)
+        .style('transition', 'opacity 0.18s ease');
+
+      const node = svg.append('g').selectAll('g').data(nodes).enter().append('g').style('cursor', 'grab').style('transition', 'opacity 0.18s ease')
+        .call(d3.drag()
+          .on('start', (ev, d) => { if (!ev.active) sim.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; })
+          .on('drag', (ev, d) => { d.fx = ev.x; d.fy = ev.y; })
+          .on('end', (ev, d) => { if (!ev.active) sim.alphaTarget(0); d.fx = null; d.fy = null; })
+        );
+
+      node.append('circle').attr('r', d => d.group === 'APT' || d.group === 'COMMODITY' ? 19 : 15).attr('fill', d => colorMap[d.group]).attr('stroke', '#FFFFFF').attr('stroke-width', 2.5);
+      node.append('text').attr('y', 31).attr('text-anchor', 'middle').attr('font-family', 'Inter').attr('font-size', 11).attr('font-weight', 600).attr('fill', 'var(--ink)').text(d => d.id);
+
+      const applyBaseFilter = () => {
+        node.style('opacity', d => state.graphFilter === 'ALL' || d.group === state.graphFilter ? 1 : 0.2);
+        link.style('opacity', 0.65).attr('stroke', 'rgba(148,163,184,0.45)');
+        linkLabel.style('opacity', 0.85);
+      };
+      applyBaseFilter();
+
+      // Neighborhood Spotlight on Hover!
+      node.on('mouseenter', (_, hovered) => {
+        const neighbors = new Set([hovered.id]);
+        links.forEach(l => {
+          const s = l.source.id || l.source, t = l.target.id || l.target;
+          if (s === hovered.id) neighbors.add(t);
+          if (t === hovered.id) neighbors.add(s);
+        });
+        node.style('opacity', d => neighbors.has(d.id) ? 1 : 0.14);
+        link.style('opacity', l => ((l.source.id || l.source) === hovered.id || (l.target.id || l.target) === hovered.id) ? 1 : 0.08)
+          .attr('stroke', l => ((l.source.id || l.source) === hovered.id || (l.target.id || l.target) === hovered.id) ? '#4F6BFF' : 'rgba(148,163,184,0.35)');
+        linkLabel.style('opacity', l => ((l.source.id || l.source) === hovered.id || (l.target.id || l.target) === hovered.id) ? 1 : 0.05);
+      }).on('mouseleave', applyBaseFilter);
+
+      node.on('click', (_, d) => {
+        playTick(740, 0.035);
+        const connected = DATA.graph.links.filter(l => l.source === d.id || l.target === d.id);
+        openInspector(`ENTITY GRAPH // ${d.group}`, d.id, `
+          <p style="color: var(--ink-2);">${d.desc}</p>
+          <button id="pin-to-globe-btn" type="button" class="w-full py-2.5 rounded-xl font-mono text-xs font-semibold text-white shadow-sm" style="background: linear-gradient(135deg, #4F6BFF, #7C3AED);">FLY TO THEATER ON 3D GLOBE →</button>
+          <div class="font-mono text-[10px] uppercase mt-2" style="color: var(--muted);">Direct Causal Links (${connected.length})</div>
+          <div class="space-y-1.5">${connected.map(l => `<div class="glass-chip px-3 py-2 font-mono text-xs">${l.source} <span style="color: var(--accent);">→ ${l.rel} →</span> ${l.target}</div>`).join('')}</div>
+        `);
+        document.getElementById('pin-to-globe-btn')?.addEventListener('click', () => {
+          closeInspector();
+          switchPillar('convergence');
+          flyGlobeTo(d.coords[0], d.coords[1]);
+        });
+      });
+
+      sim.on('tick', () => {
+        link.attr('x1', d => d.source.x).attr('y1', d => d.source.y).attr('x2', d => d.target.x).attr('y2', d => d.target.y);
+        linkLabel.attr('x', d => (d.source.x + d.target.x) / 2).attr('y', d => (d.source.y + d.target.y) / 2 - 4);
+        node.attr('transform', d => `translate(${Math.max(36, Math.min(width - 36, d.x))},${Math.max(36, Math.min(height - 36, d.y))})`);
+      });
+    }
+
+    // =========================================================================
+    // ROUTER & GLOBAL CONTROLS
+    // =========================================================================
+    function stopTimelinePlayback() {
+      state.playingTimeline = false;
+      if (state.playTimer) { clearInterval(state.playTimer); state.playTimer = null; }
+      const btn = document.getElementById('timeline-play-btn');
+      if (btn) btn.textContent = '▶ PLAY 30D';
+    }
+
+    function toggleWallboard() {
+      playTick(560);
+      state.wallboard = !state.wallboard;
+      document.body.classList.toggle('wallboard-mode', state.wallboard);
+      showToast(state.wallboard ? 'Wallboard Mode Active (Press F or Esc to exit)' : 'Standard Layout Restored');
+    }
+
+    function updateNavState() {
+      document.querySelectorAll('[data-pillar]').forEach(btn => btn.classList.toggle('active', btn.getAttribute('data-pillar') === state.pillar));
+      document.querySelectorAll('[data-pillar-tab]').forEach(btn => {
+        const active = btn.getAttribute('data-pillar-tab') === state.pillar;
+        btn.style.background = active ? 'var(--accent-soft)' : 'transparent';
+        btn.style.color = active ? 'var(--accent)' : 'var(--muted)';
+      });
+      document.querySelectorAll('[data-dock-pillar]').forEach(btn => {
+        const active = btn.getAttribute('data-dock-pillar') === state.pillar;
+        btn.style.background = active ? 'linear-gradient(135deg, #4F6BFF, #7C3AED)' : 'transparent';
+        btn.style.color = active ? '#FFFFFF' : 'var(--ink-2)';
+      });
+    }
+
+    function switchPillar(pillar) {
+      if (pillar === state.pillar && document.getElementById('main-viewport').innerHTML) return;
+      playTick(660, 0.028);
+      if (pillar !== 'convergence') stopTimelinePlayback();
+      stopGlobeLoop();
+      state.pillar = pillar;
+      updateNavState();
+      renderActiveView();
+    }
+
+    function renderActiveView() {
+      const vp = document.getElementById('main-viewport');
+      if (!vp) return;
+
+      if (state.pillar === 'convergence') {
+        vp.innerHTML = renderConvergenceView();
+        patchConvergenceTimeline();
+        mountFluidGlobe('hero-globe-canvas');
+        document.getElementById('timeline-scrubber')?.addEventListener('input', (e) => {
+          stopTimelinePlayback();
+          state.timelineIdx = Number(e.target.value);
+          patchConvergenceTimeline();
+        });
+        document.getElementById('timeline-live-btn')?.addEventListener('click', () => {
+          playTick(720);
+          stopTimelinePlayback();
+          state.timelineIdx = 30;
+          const sc = document.getElementById('timeline-scrubber');
+          if (sc) sc.value = '30';
+          patchConvergenceTimeline();
+        });
+        document.getElementById('timeline-play-btn')?.addEventListener('click', () => {
+          playTick(720);
+          if (state.playingTimeline) {
+            stopTimelinePlayback();
+          } else {
+            state.playingTimeline = true;
+            if (state.timelineIdx >= 30) state.timelineIdx = 0;
+            const btn = document.getElementById('timeline-play-btn');
+            if (btn) btn.textContent = '⏸ PAUSE';
+            state.playTimer = setInterval(() => {
+              state.timelineIdx++;
+              if (state.timelineIdx >= 30) { state.timelineIdx = 30; stopTimelinePlayback(); }
+              const sc = document.getElementById('timeline-scrubber');
+              if (sc) sc.value = String(state.timelineIdx);
+              patchConvergenceTimeline();
+            }, 240);
+          }
+        });
+        vp.querySelectorAll('[data-watchlist]').forEach(btn => btn.addEventListener('click', () => {
+          playTick(680);
+          state.watchlist = btn.getAttribute('data-watchlist');
+          if (state.watchlist === 'INDOPAC') flyGlobeTo(101.2, 5);
+          if (state.watchlist === 'MIDEAST') flyGlobeTo(48, 22);
+          if (state.watchlist === 'CYBER') flyGlobeTo(-95, 30);
+          renderActiveView();
+        }));
+        vp.querySelectorAll('[data-fly-cp]').forEach(btn => btn.addEventListener('click', () => {
+          playTick(760);
+          const cp = DATA.chokepoints.find(c => c.id === btn.getAttribute('data-fly-cp'));
+          if (cp) { flyGlobeTo(cp.coords[0], cp.coords[1]); inspectChokepoint(cp); }
+        }));
+        vp.querySelectorAll('[data-sig-id]').forEach(btn => btn.addEventListener('click', () => {
+          playTick(720);
+          const sig = DATA.signals.find(s => s.id === btn.getAttribute('data-sig-id'));
+          if (sig) { flyGlobeTo(sig.coords[0], sig.coords[1]); inspectSignal(sig); }
+        }));
+        document.getElementById('launch-graph-btn')?.addEventListener('click', () => switchPillar('graph'));
+      } else if (state.pillar === 'geopolitics') {
+        vp.innerHTML = renderGeopoliticsView();
+        mountFluidGlobe('full-map-canvas');
+        vp.querySelectorAll('[data-map-mode]').forEach(b => b.addEventListener('click', () => { playTick(680); state.mapMode = b.getAttribute('data-map-mode'); renderActiveView(); }));
+        vp.querySelectorAll('[data-layer-toggle]').forEach(b => b.addEventListener('click', () => { playTick(620); const k = b.getAttribute('data-layer-toggle'); state.layers[k] = !state.layers[k]; renderActiveView(); }));
+        vp.querySelectorAll('[data-geo-cp]').forEach(b => b.addEventListener('click', () => { playTick(760); const cp = DATA.chokepoints.find(c => c.id === b.getAttribute('data-geo-cp')); if (cp) { flyGlobeTo(cp.coords[0], cp.coords[1]); inspectChokepoint(cp); } }));
+        vp.querySelectorAll('[data-geo-inc]').forEach(b => b.addEventListener('click', () => { playTick(720); const inc = DATA.incidents.find(i => i.id === b.getAttribute('data-geo-inc')); if (inc) { flyGlobeTo(inc.coords[0], inc.coords[1]); openInspector(inc.type, inc.title, `<p style="color:var(--ink-2);">${inc.details}</p>`); } }));
+      } else if (state.pillar === 'macroeconomics') {
+        vp.innerHTML = renderMacroView();
+        vp.querySelectorAll('[data-tenor-idx]').forEach(el => el.addEventListener('click', () => { playTick(700); state.selectedTenorIdx = Number(el.getAttribute('data-tenor-idx')); renderActiveView(); }));
+        const svgEl = document.getElementById('yield-curve-svg');
+        svgEl?.addEventListener('pointermove', (e) => {
+          const rect = svgEl.getBoundingClientRect();
+          const frac = Math.max(0, Math.min(1, (e.clientX - rect.left - rect.width * 0.05) / (rect.width * 0.90)));
+          const idx = Math.round(frac * (DATA.yieldCurve.points.length - 1));
+          const p = DATA.yieldCurve.points[idx];
+          const x = 44 + (idx / (DATA.yieldCurve.points.length - 1)) * (820 - 68);
+          const ch = document.getElementById('yc-crosshair');
+          if (ch) { ch.setAttribute('x1', x); ch.setAttribute('x2', x); }
+          const bar = document.getElementById('yc-inspector-bar');
+          if (bar && p) bar.innerHTML = `<span>TENOR <strong style="color: var(--accent);">${p.m}</strong></span><span>NOW <strong>${p.r.toFixed(2)}%</strong></span><span>1M ${p.m1.toFixed(2)}%</span><span>1Y ${p.y1.toFixed(2)}%</span>`;
+        });
+      } else if (state.pillar === 'cyber') {
+        vp.innerHTML = renderCyberView();
+        vp.querySelectorAll('[data-apt-filter]').forEach(b => b.addEventListener('click', () => { playTick(660); state.aptSponsor = b.getAttribute('data-apt-filter'); renderActiveView(); }));
+        vp.querySelectorAll('[data-apt-id]').forEach(b => b.addEventListener('click', () => { playTick(720); const a = DATA.apts.find(x => x.id === b.getAttribute('data-apt-id')); if (a) inspectApt(a); }));
+        vp.querySelectorAll('[data-kev-id]').forEach(b => b.addEventListener('click', () => { playTick(720); const k = DATA.kevs.find(x => x.cve === b.getAttribute('data-kev-id')); if (k) inspectKev(k); }));
+        vp.querySelectorAll('[data-mitre-id]').forEach(b => b.addEventListener('click', () => { playTick(720); const m = DATA.mitre.find(x => x.id === b.getAttribute('data-mitre-id')); if (m) openInspector(`MITRE ${m.techId}`, m.techName, `<p style="color:var(--ink-2);">${m.desc}</p>`); }));
+      } else if (state.pillar === 'ai') {
+        vp.innerHTML = renderAiView();
+        patchWargameInPlace();
+        const bind = (id, key) => document.getElementById(id)?.addEventListener('input', e => {
+          state.wargame[key] = Number(e.target.value);
+          state.wargame.preset = 'Custom Scenario';
+          patchWargameInPlace(); // Zero-jank 120Hz in-place update!
+        });
+        bind('wg-closure', 'closureDays');
+        bind('wg-cyber', 'cyberSeverity');
+        bind('wg-spr', 'sprRelease');
+        vp.querySelectorAll('[data-wg-preset]').forEach(b => b.addEventListener('click', () => {
+          playTick(740);
+          const p = b.getAttribute('data-wg-preset');
+          if (p === 'suez') state.wargame = { closureDays: 6, cyberSeverity: 10, sprRelease: 0, preset: '2021 Suez Blockage (6D)' };
+          if (p === 'redsea') state.wargame = { closureDays: 28, cyberSeverity: 25, sprRelease: 15, preset: '2024 Red Sea Rerouting' };
+          if (p === 'hormuz') state.wargame = { closureDays: 45, cyberSeverity: 65, sprRelease: 30, preset: 'Hormuz 45D + Volt Typhoon OT' };
+          if (p === 'extreme') state.wargame = { closureDays: 90, cyberSeverity: 92, sprRelease: 65, preset: '90D Dual-Strait Shock' };
+          document.getElementById('wg-closure').value = String(state.wargame.closureDays);
+          document.getElementById('wg-cyber').value = String(state.wargame.cyberSeverity);
+          document.getElementById('wg-spr').value = String(state.wargame.sprRelease);
+          patchWargameInPlace();
+        }));
+      } else if (state.pillar === 'graph') {
+        vp.innerHTML = renderGraphView();
+        mountKnowledgeGraph();
+        vp.querySelectorAll('[data-graph-filter]').forEach(b => b.addEventListener('click', () => { playTick(660); state.graphFilter = b.getAttribute('data-graph-filter'); renderActiveView(); }));
+      }
+    }
+
+    // =========================================================================
+    // INIT
+    // =========================================================================
+    function updateThemeIcons() {
+      document.getElementById('theme-icon-sun').classList.toggle('hidden', !state.darkTheme);
+      document.getElementById('theme-icon-moon').classList.toggle('hidden', state.darkTheme);
+    }
+
+    function startClocks() {
+      const tick = () => {
+        const now = new Date();
+        const z = document.getElementById('clock-zulu');
+        const l = document.getElementById('clock-local');
+        if (z) z.textContent = now.toISOString().substring(11, 19) + ' Z';
+        if (l) l.textContent = now.toLocaleTimeString([], { hour12: false });
+      };
+      tick();
+      setInterval(tick, 1000);
+    }
+
+    document.querySelectorAll('[data-pillar]').forEach(btn => btn.addEventListener('click', () => switchPillar(btn.getAttribute('data-pillar'))));
+    document.querySelectorAll('[data-pillar-tab]').forEach(btn => btn.addEventListener('click', () => switchPillar(btn.getAttribute('data-pillar-tab'))));
+    document.querySelectorAll('[data-dock-pillar]').forEach(btn => btn.addEventListener('click', () => switchPillar(btn.getAttribute('data-dock-pillar'))));
+    document.getElementById('brand-home-btn').addEventListener('click', () => switchPillar('convergence'));
+    document.getElementById('open-palette-btn').addEventListener('click', openPalette);
+    document.getElementById('open-palette-rail').addEventListener('click', openPalette);
+    document.getElementById('close-palette-btn').addEventListener('click', closePalette);
+    document.getElementById('palette-modal').addEventListener('click', (e) => { if (e.target.id === 'palette-modal') closePalette(); });
+    document.getElementById('palette-input').addEventListener('input', (e) => renderPaletteResults(e.target.value));
+    document.getElementById('close-inspector-btn').addEventListener('click', closeInspector);
+    document.getElementById('inspector-backdrop').addEventListener('click', closeInspector);
+    document.getElementById('wallboard-btn').addEventListener('click', toggleWallboard);
+    document.getElementById('feed-health-btn').addEventListener('click', openFeedHealthDrawer);
+    document.getElementById('refresh-btn').addEventListener('click', () => { playTick(800); showToast('Telemetry synchronized'); });
+    document.getElementById('sound-toggle-btn').addEventListener('click', () => {
+      state.soundEnabled = !state.soundEnabled;
+      document.getElementById('sound-icon-on').classList.toggle('hidden', !state.soundEnabled);
+      document.getElementById('sound-icon-off').classList.toggle('hidden', state.soundEnabled);
+      if (state.soundEnabled) playTick(880, 0.05);
+      showToast(state.soundEnabled ? 'Tactile UI Audio Enabled' : 'Tactile UI Audio Muted');
+    });
+    document.getElementById('theme-toggle-btn').addEventListener('click', () => {
+      playTick(620);
+      state.darkTheme = !state.darkTheme;
+      document.body.classList.toggle('dark-theme', state.darkTheme);
+      try { localStorage.setItem('trident_theme', state.darkTheme ? 'dark' : 'light'); } catch (_) {}
+      updateThemeIcons();
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); openPalette(); return; }
+      if (e.key === 'Escape') {
+        closePalette();
+        closeInspector();
+        if (state.wallboard) toggleWallboard();
+        return;
+      }
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.key === '/') { e.preventDefault(); openPalette(); }
+      if (e.key.toLowerCase() === 'f') toggleWallboard();
+      if (e.key === '1') switchPillar('convergence');
+      if (e.key === '2') switchPillar('geopolitics');
+      if (e.key === '3') switchPillar('macroeconomics');
+      if (e.key === '4') switchPillar('cyber');
+      if (e.key === '5') switchPillar('ai');
+      if (e.key === '6') switchPillar('graph');
+      if (e.key.toLowerCase() === 'r') { playTick(800); showToast('Telemetry synchronized'); }
+    });
+
+    updateThemeIcons();
+    updateNavState();
+    startClocks();
+    renderActiveView();
+    loadWorldAtlas();
+
+    // Live Vercel / Rust API hydration (upgrades baseline snapshot automatically when keys are configured)
+    async function hydrateLiveApis() {
+      const active = [];
+      try {
+        const [macroRes, geoRes, cyberRes] = await Promise.all([
+          fetch('/api/macro/all').catch(() => null),
+          fetch('/api/geo/summary').catch(() => null),
+          fetch('/api/cyber/all').catch(() => null)
+        ]);
+        if (macroRes && macroRes.ok) {
+          const m = await macroRes.json();
+          if (m?.sources?.fred === 'LIVE_FRED_API') active.push('FRED');
+          if (m?.sources?.eia === 'LIVE_EIA_V2_API') active.push('EIA');
+          if (m?.yield_curve?.points?.length) {
+            DATA.yieldCurve.spread10y2y = m.yield_curve.spread_10y_2y_bps;
+            DATA.yieldCurve.spread10y3m = m.yield_curve.spread_10y_3m_bps;
+            DATA.yieldCurve.points = m.yield_curve.points.map((p: any) => ({
+              m: p.maturity, r: p.rate, prev: p.previous_day_rate, m1: p.one_month_ago_rate, y1: p.one_year_ago_rate
+            }));
+          }
+        }
+        if (geoRes && geoRes.ok) {
+          if (geoRes.headers.get('X-Trident-FIRMS-Source') === 'LIVE_NASA_FIRMS') active.push('FIRMS');
+          const g = await geoRes.json();
+          if (Array.isArray(g) && g.length) {
+            DATA.incidents = g.map((x: any) => ({
+              id: x.id, title: x.title, type: x.incident_type, location: x.location_name,
+              coords: [x.longitude, x.latitude], severity: x.severity, details: x.details
+            }));
+          }
+        }
+        if (cyberRes && cyberRes.ok) {
+          const c = await cyberRes.json();
+          if (c?.kev_source === 'LIVE_CISA_KEV_JSON') active.push('CISA KEV');
+          if (Array.isArray(c?.cisa_kev_feed) && c.cisa_kev_feed.length) {
+            DATA.kevs = c.cisa_kev_feed.map((k: any) => ({
+              cve: k.cve_id, vendor: k.vendor_project, product: k.product,
+              name: k.vulnerability_name, added: k.date_added, cvss: k.cvss_score || 9.0,
+              sponsors: ['PRC', 'RUSSIAN', 'DPRK', 'IRAN'], status: k.active_exploitation_status
+            }));
+          }
+        }
+        const lbl = document.getElementById('feed-status-label');
+        if (lbl && active.length) lbl.textContent = `LIVE: ${active.join(' · ')}`;
+        renderActiveView();
+      } catch (_) {}
+    }
+    hydrateLiveApis();

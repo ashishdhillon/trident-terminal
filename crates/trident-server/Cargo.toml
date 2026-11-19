@@ -7,6 +7,7 @@ edition = "2021"
 trident-core = { path = "../trident-core" }
 trident-macro = { path = "../trident-macro" }
 trident-cyber = { path = "../trident-cyber" }
+trident-ai = { path = "../trident-ai" }
 tokio.workspace = true
 serde.workspace = true
 serde_json.workspace = true

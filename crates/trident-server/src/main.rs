@@ -1,14 +1,18 @@
 use axum::{
     http::{HeaderValue, Method},
     response::Json,
-    routing::get,
+    routing::{get, post},
     Router,
 };
 use chrono::Utc;
 use serde::Serialize;
 use std::net::SocketAddr;
 use tower_http::cors::CorsLayer;
-use trident_core::{ConvergenceSignal, FocusPillar, GeoIncident, SignalSeverity};
+use trident_ai::AiEngine;
+use trident_core::{
+    AiSynthesisRequest, AiSynthesisResponse, ConvergenceSignal, FocusPillar, GeoIncident,
+    HardwareAccelerationInfo, SignalSeverity, StrategicSitrep,
+};
 use trident_cyber::CyberEngine;
 use trident_macro::MacroEngine;
 
@@ -47,6 +51,9 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/cyber/cisa-kev", get(get_cisa_kev))
         .route("/api/convergence/signals", get(get_convergence_signals))
         .route("/api/geo/summary", get(get_geo_summary))
+        .route("/api/ai/sitrep", get(get_sitrep))
+        .route("/api/ai/synthesize", post(synthesize_ai))
+        .route("/api/ai/hardware-status", get(get_hardware_status))
         .layer(cors);
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 3100));
@@ -186,4 +193,18 @@ async fn get_geo_summary() -> Json<Vec<GeoIncident>> {
         },
     ];
     Json(incidents)
+}
+
+async fn get_sitrep() -> Json<StrategicSitrep> {
+    Json(AiEngine::generate_strategic_sitrep())
+}
+
+async fn synthesize_ai(
+    Json(payload): Json<AiSynthesisRequest>,
+) -> Json<AiSynthesisResponse> {
+    Json(AiEngine::synthesize_query(&payload))
+}
+
+async fn get_hardware_status() -> Json<HardwareAccelerationInfo> {
+    Json(AiEngine::get_hardware_info())
 }

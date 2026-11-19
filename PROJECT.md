@@ -5,10 +5,10 @@ name: Trident Terminal
 emoji: 🔱
 category: GitHub
 stage: building
-next: Build Phase 4 Apple Silicon Metal AI RAG Module for cross-domain synthesis
+next: Integrate live FRED and EIA streaming API keys & configure Tauri 2 native desktop app bundle
 due: 
-description: Institutional-grade unified strategic intelligence terminal combining geopolitics, macroeconomics, and cyber warfare powered by a high-speed native Rust core.
-tags: Trident, Rust, Macro, Geopolitics, Cyber, C2
+description: Institutional-grade unified strategic intelligence terminal combining geopolitics, macroeconomics, cyber warfare, and on-device AI synthesis powered by a high-speed native Rust core.
+tags: Trident, Rust, Macro, Geopolitics, Cyber, C2, AI
 location: /Users/ashishdhillon/ai-company/trident-terminal
 
 ## People
@@ -21,7 +21,7 @@ location: /Users/ashishdhillon/ai-company/trident-terminal
 - [x] (building) Build Strategic Reserves & Central Bank Monetary Matrix
 - [x] (building) Build Commodity Radar & Maritime Chokepoint Sensitivity Matrix
 - [x] (building) Implement Phase 3: MITRE ATT&CK Matrix, CISA KEV & Nation-State APT Cyber Engine
-- [ ] (building) Build Phase 4: Apple Silicon Metal AI Module via Candle/ONNX for cross-domain briefs
+- [x] (building) Build Phase 4: Apple Silicon Metal AI Module via Candle/SIMD for cross-domain briefs
 
 ## Upgrades
 - [suggested] Integrate live FRED API and EIA API real-time keys

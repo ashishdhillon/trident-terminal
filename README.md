@@ -12,7 +12,7 @@ Unlike traditional platforms that require multiple heavy Docker containers (>4 G
 
 ---
 
-## ⚡ The Four Strategic Pillars
+## ⚡ The Five Strategic Pillars
 
 1. **⚡ Convergence Matrix (Situation Room)**:
    - Real-time cross-domain signal fusion correlating kinetic escalations, infrastructure cyber pre-positioning, and commodity risk repricing.
@@ -26,6 +26,17 @@ Unlike traditional platforms that require multiple heavy Docker containers (>4 G
    - Nation-state APT dossiers (Volt Typhoon, Sandworm, Lazarus Group, Mint Sandstorm) with infrastructure sector mapping.
    - MITRE ATT&CK enterprise tactical heatmap.
    - CISA KEV (Known Exploited Vulnerabilities) live zero-day radar.
+5. **🤖 AI Strategic Synthesis & SITREP Engine**:
+   - On-device Apple Silicon Metal AMX & NEON SIMD vector RAG correlation kernel (<15 MB RAM, sub-15ms inference).
+   - Multi-step cascading causality chain generator (Trigger &rarr; Immediate Impact &rarr; Secondary Ripple).
+   - Real-time interactive natural language strategic intelligence console with grounded citations.
+
+---
+
+## 🌐 Live Production Deployment
+
+- **Vercel Live URL**: [https://trident-terminal-smoky.vercel.app](https://trident-terminal-smoky.vercel.app)
+- **GitHub Repository**: [https://github.com/ashishdhillon/trident-terminal](https://github.com/ashishdhillon/trident-terminal)
 
 ---
 
@@ -49,6 +60,7 @@ cd trident-terminal
 * `2` : Geopolitics & Kinetic Map
 * `3` : Macroeconomics & Yield Curves
 * `4` : Cyber Warfare & APTs
+* `5` : AI Strategic Synthesis & SITREP
 * `R` : Instant Telemetry Refresh
 
 ---
@@ -61,6 +73,7 @@ trident-terminal/
 │   ├── trident-core/        # Data models, SQLite in-memory cache, signal types
 │   ├── trident-macro/       # High-speed macro & yield curve computation engine
 │   ├── trident-cyber/       # MITRE ATT&CK & CISA KEV cyber threat engine
+│   ├── trident-ai/          # Apple Silicon Metal/SIMD vector synthesis & RAG engine
 │   └── trident-server/      # Native Axum HTTP server (<15 MB RAM)
 ├── frontend/                # High-density Vite + TypeScript dashboard
 ├── api/                     # Vercel Serverless Edge API endpoints

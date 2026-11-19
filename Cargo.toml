@@ -3,6 +3,7 @@ members = [
     "crates/trident-core",
     "crates/trident-macro",
     "crates/trident-cyber",
+    "crates/trident-ai",
     "crates/trident-server",
 ]
 resolver = "2"

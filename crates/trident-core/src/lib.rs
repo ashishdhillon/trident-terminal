@@ -118,6 +118,81 @@ pub struct CyberDashboardPayload {
     pub infrastructure_targets: Vec<InfrastructureCyberTarget>,
 }
 
+// ==========================================
+// PHASE 4: AI STRATEGIC SYNTHESIS & SITREP
+// ==========================================
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CausalityLink {
+    pub step: u32,
+    pub domain: FocusPillar,
+    pub trigger_event: String,
+    pub immediate_impact: String,
+    pub secondary_ripple: String,
+    pub confidence_pct: u8,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CrossDomainInference {
+    pub id: String,
+    pub title: String,
+    pub primary_thesis: String,
+    pub risk_tier: SignalSeverity,
+    pub correlated_domains: Vec<FocusPillar>,
+    pub causality_sequence: Vec<CausalityLink>,
+    pub market_vector: String,
+    pub defensive_posture: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct StrategicSitrep {
+    pub sitrep_id: String,
+    pub generated_at: DateTime<Utc>,
+    pub threat_convergence_index: u8, // 0 - 100
+    pub executive_summary: String,
+    pub active_syndicates: Vec<String>,
+    pub primary_inferences: Vec<CrossDomainInference>,
+    pub key_cve_exposures: Vec<String>,
+    pub macro_buffers: Vec<String>,
+    pub actionable_directives: Vec<String>,
+    pub model_engine: String,
+    pub inference_latency_ms: u64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AiSynthesisRequest {
+    pub query: String,
+    pub target_domains: Option<Vec<FocusPillar>>,
+    pub max_inferences: Option<usize>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct EvidenceNode {
+    pub id: String,
+    pub title: String,
+    pub domain: FocusPillar,
+    pub similarity_score: f32,
+    pub citation_source: String,
+    pub excerpt: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct HardwareAccelerationInfo {
+    pub target_arch: String,
+    pub is_apple_silicon: bool,
+    pub acceleration_tier: String,
+    pub vector_simd_active: bool,
+    pub memory_allocated_mb: f32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AiSynthesisResponse {
+    pub query: String,
+    pub sitrep: StrategicSitrep,
+    pub relevant_evidence_nodes: Vec<EvidenceNode>,
+    pub hardware_acceleration: HardwareAccelerationInfo,
+}
+
 pub struct StateStorage {
     conn: rusqlite::Connection,
 }
